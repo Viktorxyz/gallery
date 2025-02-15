@@ -13,7 +13,6 @@ const QRCode = ({ onClickAway }: QRCodeProps) => {
     const generateQRCode = async () => {
       const location = window.location.href
       const src = await qrcode.toDataURL(location, {
-        version: 4,
         color: {
           light: '#ffffff00',
           dark: '#ffffff'
