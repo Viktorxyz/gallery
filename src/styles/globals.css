@@ -1,0 +1,13 @@
+@import 'tailwindcss';
+
+@utility icon-action {
+  fill: white;
+}
+
+@utility icon-on-action {
+  fill: black;
+}
+
+@utility text-error {
+  color: var(--color-red-600);
+}
