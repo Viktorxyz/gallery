@@ -1,6 +1,5 @@
 import { IconSpinner } from '@/data/icons'
 import cn from '@/utils/cn'
-import React, { useEffect } from 'react'
 
 type SpinnerProps = {
   className?: string

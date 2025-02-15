@@ -46,12 +46,12 @@ const ActionsProvider = ({ children }: ActionsProviderProps) => {
 
   const closeActions = useCallback(
     () => setActionsClosed(true),
-    [setActionsHidden]
+    [setActionsClosed]
   )
 
   const openActions = useCallback(
     () => setActionsClosed(false),
-    [setActionsHidden]
+    [setActionsClosed]
   )
 
   const value = {

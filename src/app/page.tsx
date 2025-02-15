@@ -1,12 +1,12 @@
 import Galleries from '@/components/index/Galleries'
 import TopBar from '@/components/TopBar'
-import createClient from '@/utils/supabase/server'
+import { createClient } from '@/utils/supabase/client'
 import React from 'react'
 
-const supabase = await createClient()
+const supabase = createClient()
 
 const Page = async () => {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from('galleries')
     .select('gallery_id,gallery_name')
 

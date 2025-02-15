@@ -21,7 +21,7 @@ const GalleryImage = ({
   uploading,
   liked
 }: GalleryImageProps) => {
-  const [isPending, startTransition] = useTransition()
+  const [, startTransition] = useTransition()
   const [optimisticLikes, setOptimisticLikes] = useOptimistic<number>(likes)
   const ref = useLongPress<HTMLDivElement>(onLongPress)
 

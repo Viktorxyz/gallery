@@ -1,12 +1,11 @@
 'use client'
 import useBoundStore from '@/stores'
 import { usePinch } from '@use-gesture/react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import GalleryImage from './GalleryImage'
 import toggleLikeAction from '@/actions/toggleLike'
 import { createClient } from '@/utils/supabase/client'
 import { useActions } from '@/providers/ActionsProvider'
-import { convertArrayToObject } from '@/utils/object'
 import { GalleryImageMap } from '@/types/gallery'
 
 type GalleryProps = {
@@ -40,7 +39,7 @@ const Gallery = ({ initialImages }: GalleryProps) => {
     }
     if (keywordId) setImagesWithUserData()
     else setImages(initialImages)
-  }, [initialImages, keywordId])
+  }, [setImages, initialImages, keywordId])
 
   usePinch(({ offset: [s] }) => setCols(Math.ceil(MAX_COLS + MIN_COLS - s)), {
     target: galleryRef,

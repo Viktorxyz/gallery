@@ -9,12 +9,15 @@ const Form = () => {
   const router = useRouter()
   const [error, setError] = useState(null)
 
-  const formAction = useCallback(async (formData: FormData) => {
-    const galleryName = formData.get('gallery-name') as string
-    const res = await createNewGallery(galleryName)
-    if (res?.error) setError('Name already in use.')
-    else router.push('/')
-  }, [])
+  const formAction = useCallback(
+    async (formData: FormData) => {
+      const galleryName = formData.get('gallery-name') as string
+      const res = await createNewGallery(galleryName)
+      if (res?.error) setError('Name already in use.')
+      else router.push('/')
+    },
+    [router, setError]
+  )
 
   return (
     <form action={formAction} className="flex flex-col flex-1 justify-end">

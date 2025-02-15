@@ -9,7 +9,10 @@ type ActionsProps = {
 }
 
 const Actions = ({ searchRef, className }: ActionsProps) => {
-  const focusSearch = useCallback(() => searchRef.current.focus(), [])
+  const focusSearch = useCallback(
+    () => searchRef.current.focus(),
+    [searchRef.current]
+  )
 
   return (
     <div
