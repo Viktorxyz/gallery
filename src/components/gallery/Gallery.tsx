@@ -8,6 +8,7 @@ import { useActions } from '@/providers/ActionsProvider'
 import { GalleryImageMap } from '@/types/gallery'
 import useUserStore from '@/stores/userStore'
 import useGalleryStore from '@/stores/galleryStore'
+import { useToast } from '@/providers/ToastProvider'
 
 type GalleryProps = {
   initialImages: GalleryImageMap
@@ -25,6 +26,7 @@ const Gallery = ({ initialImages }: GalleryProps) => {
   const { keywordId } = useUserStore()
   const { images, toggleSelect, toggleLike, setImages } = useGalleryStore()
   const { actions, setActions } = useActions()
+  const { showToast } = useToast()
 
   useEffect(() => {
     const setImagesWithUserData = async () => {
@@ -41,6 +43,23 @@ const Gallery = ({ initialImages }: GalleryProps) => {
     if (keywordId) setImagesWithUserData()
     else setImages(initialImages)
   }, [setImages, initialImages, keywordId])
+
+  useEffect(() => {
+    supabase
+      .channel('images')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'images'
+        },
+        (payload) => {
+          if (payload.new.keyword_id !== keywordId) showToast()
+        }
+      )
+      .subscribe()
+  }, [supabase, keywordId])
 
   usePinch(({ offset: [s] }) => setCols(Math.ceil(MAX_COLS + MIN_COLS - s)), {
     target: galleryRef,
@@ -93,9 +112,13 @@ const Gallery = ({ initialImages }: GalleryProps) => {
           ))
         )
       ) : (
-        <div className="flex self-center justify-self-center items-end">
-          <span className="text-neutral-800 text-5xl font-thin">Galerija</span>
-          <span className="text-neutral-400 font-thin text-2xl">je prazna</span>
+        <div className="flex items-center justify-center h-full">
+          <div className="flex items-end justify-center relative">
+            <span className="text-neutral-800 text-7xl font-thin">
+              Galerija
+            </span>
+            <span className="absolute font-thin text-2xl">je prazna</span>
+          </div>
         </div>
       )}
     </div>

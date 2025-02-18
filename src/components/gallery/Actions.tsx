@@ -3,7 +3,6 @@
 import {
   IconDownload,
   IconImageThin,
-  IconKeyThin,
   IconMenu,
   IconQRCode,
   IconX
@@ -180,7 +179,7 @@ const Actions = () => {
             <IconMenu onClick={openActions} className="scale-75 icon-action" />
           ) : actions === 'default' ? (
             <>
-              <IconKeyThin onClick={openKeyword} className="icon-action" />
+              {/* <IconKeyThin onClick={openKeyword} className="icon-action" /> */}
               <IconQRCode onClick={showQRCode} className="icon-action" />
               <label>
                 <IconImageThin className="icon-action scale-110" />

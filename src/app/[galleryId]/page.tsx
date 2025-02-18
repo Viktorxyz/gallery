@@ -1,6 +1,7 @@
 import Actions from '@/components/gallery/Actions'
 import Gallery from '@/components/gallery/Gallery'
 import ActionsProvider from '@/providers/ActionsProvider'
+import ToastProvider from '@/providers/ToastProvider'
 import { GalleryImageMap } from '@/types/gallery'
 import { convertArrayToObject } from '@/utils/object'
 import { createClient } from '@/utils/supabase/client'
@@ -53,8 +54,10 @@ export default async function Page({
 
   return (
     <ActionsProvider>
-      <Gallery initialImages={initialImages} />
-      <Actions />
+      <ToastProvider>
+        <Gallery initialImages={initialImages} />
+        <Actions />
+      </ToastProvider>
     </ActionsProvider>
   )
 }

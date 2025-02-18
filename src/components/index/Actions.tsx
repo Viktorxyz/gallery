@@ -30,7 +30,7 @@ const Actions = () => {
     getUser()
 
     return () => subscription.unsubscribe()
-  }, [setUser])
+  }, [supabase.auth, setUser])
 
   return (
     <div className="flex items-end fixed p-6 bottom-0 w-full">
