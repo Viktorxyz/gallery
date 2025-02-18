@@ -41,6 +41,8 @@ const Actions = () => {
   const { keyword, keywordId, setKeyword } = useUserStore()
   const { images, toggleSelect, setImage, addImages } = useGalleryStore()
 
+  const [keywordError, setKeywordError] = useState<string>(null)
+
   // qrcode
   const [qrcodeHidden, setQRCodeHidden] = useState(true)
   const showQRCode = useCallback(
@@ -127,6 +129,8 @@ const Actions = () => {
     if (!error) {
       setKeyword({ keyword, keywordId })
       hideKeywordForm()
+    } else {
+      setKeywordError('Keyword already in use.')
     }
   }
 
@@ -210,7 +214,11 @@ const Actions = () => {
       </div>
       {!qrcodeHidden && <QRCode onClickAway={hideQRCode} />}
       {!keywordFormHidden && (
-        <Keyword onClickAway={closeKeyword} onSubmit={onKeywordSubmit} />
+        <Keyword
+          error={keywordError}
+          onClickAway={closeKeyword}
+          onSubmit={onKeywordSubmit}
+        />
       )}
     </>
   )

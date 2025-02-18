@@ -9,6 +9,8 @@ const createKeyword = async (galleryId: string, keyword: string) => {
     .insert({ gallery_id: galleryId, keyword })
     .select('keyword_id')
 
+  if (error) return { error }
+
   return { keywordId: data[0].keyword_id, error }
 }
 

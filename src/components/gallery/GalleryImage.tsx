@@ -1,8 +1,12 @@
+'use client'
+
 import { IconCheck, IconHeartOutlined, IconHeartFill } from '@/data/icons'
 import useLongPress from '@/hooks/useLongPress'
 import Spinner from '../Spinner'
 import { useOptimistic, useTransition } from 'react'
 import { type GalleryImage } from '@/types/gallery'
+import useUserStore from '@/stores/userStore'
+import { useActions } from '@/providers/ActionsProvider'
 
 type GalleryImageProps = GalleryImage & {
   onLike: () => void
@@ -22,10 +26,12 @@ const GalleryImage = ({
   liked
 }: GalleryImageProps) => {
   const [, startTransition] = useTransition()
+  const { keywordId } = useUserStore()
   const [optimisticLikes, setOptimisticLikes] = useOptimistic<number>(likes)
   const ref = useLongPress<HTMLDivElement>(onLongPress)
 
   const handleOnLike = () => {
+    if (!keywordId) return
     startTransition(() => {
       setOptimisticLikes(liked ? optimisticLikes - 1 : optimisticLikes + 1)
     })
@@ -51,7 +57,9 @@ const GalleryImage = ({
                 <IconHeartOutlined className="size-6 icon-action" />
               )}
 
-              <p className="select-none">{optimisticLikes}</p>
+              <p className="text-right select-none w-[2ch]">
+                {optimisticLikes}
+              </p>
             </div>
           </div>
         </div>
