@@ -6,7 +6,6 @@ import Spinner from '../Spinner'
 import { useOptimistic, useTransition } from 'react'
 import { type GalleryImage } from '@/types/gallery'
 import useUserStore from '@/stores/userStore'
-import { useActions } from '@/providers/ActionsProvider'
 
 type GalleryImageProps = GalleryImage & {
   onLike: () => void
