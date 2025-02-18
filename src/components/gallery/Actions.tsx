@@ -2,12 +2,9 @@
 
 import {
   IconDownload,
-  IconImage,
   IconImageThin,
-  IconKey,
   IconKeyThin,
   IconMenu,
-  IconPlus,
   IconQRCode,
   IconX
 } from '@/data/icons'

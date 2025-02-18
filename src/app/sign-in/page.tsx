@@ -22,7 +22,6 @@ const page = () => {
           type="submit"
           className="w-max text-black px-5 gap-2 self-end"
           icon="IconCheck"
-          text="Sign In"
         />
       </form>
     </div>
