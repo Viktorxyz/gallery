@@ -6,11 +6,12 @@ import { IconCheck } from '@/data/icons'
 import useClickAway from '@/hooks/useClickAway'
 
 type KeywordProps = {
+  error?: string
   onClickAway?: () => void
   onSubmit?: (value?: string) => void
 }
 
-const Keyword = ({ onClickAway, onSubmit }: KeywordProps) => {
+const Keyword = ({ error, onClickAway, onSubmit }: KeywordProps) => {
   const ref = useClickAway<HTMLFormElement>(onClickAway)
 
   const action = (formData: FormData) =>
@@ -24,6 +25,7 @@ const Keyword = ({ onClickAway, onSubmit }: KeywordProps) => {
             autoFocus
             placeholder="Unesi reč ili tvoje ime"
             name="keyword"
+            error={error}
           />
           <button className="" type="submit">
             <IconCheck className="size-6 fill-neutral-400" />
