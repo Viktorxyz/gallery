@@ -16,8 +16,10 @@ import IconArrowRight from '../../public/icons/ArrowRight.svg'
 import IconImage from '../../public/icons/Image.svg'
 import IconImageThin from '../../public/icons/ImageThin.svg'
 import IconKeyThin from '../../public/icons/KeyThin.svg'
+import IconRotateRight from '../../public/icons/RotateRight.svg'
 
 export {
+  IconRotateRight,
   IconKeyThin,
   IconImage,
   IconImageThin,
