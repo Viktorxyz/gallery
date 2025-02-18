@@ -1,28 +1,45 @@
-import { IconSearch } from '@/data/icons'
-import React, { RefObject, useCallback } from 'react'
-import cn from '@/utils/cn'
-import NewGallery from './NewGallery'
+'use client'
 
-type ActionsProps = {
-  searchRef: RefObject<HTMLInputElement>
-  className?: string
-}
+import { createClient } from '@/utils/supabase/client'
+import IconButton from '../IconButton'
+import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import Button from '../Button'
 
-const Actions = ({ searchRef, className }: ActionsProps) => {
-  const focusSearch = useCallback(
-    () => searchRef.current.focus(),
-    [searchRef.current]
-  )
+const Actions = () => {
+  const router = useRouter()
+  const supabase = createClient()
+  const [user, setUser] = useState(null)
+
+  const signOut = async () => await supabase.auth.signOut()
+
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user }
+      } = await supabase.auth.getUser()
+      setUser(user)
+    }
+
+    const {
+      data: { subscription }
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null)
+    })
+
+    getUser()
+
+    return () => subscription.unsubscribe()
+  }, [setUser])
 
   return (
-    <div
-      className={cn(
-        'flex h-20 gap-12 items-center justify-end bg-black',
-        className
-      )}
-    >
-      <IconSearch onClick={focusSearch} className="size-6 icon-action" />
-      <NewGallery />
+    <div className="flex items-end fixed p-6 bottom-0 w-full">
+      {user && <Button onClick={signOut}>Sign Out</Button>}
+      <IconButton
+        onClick={() => router.push('/dashboard')}
+        icon="IconArrowRight"
+        className="ml-auto"
+      />
     </div>
   )
 }

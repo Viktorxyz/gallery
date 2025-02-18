@@ -12,8 +12,6 @@ import useLongPressAway from 'hooks/useLongPressAway'
 import useWindowScroll from 'hooks/useWindowScroll'
 import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
 import cn from 'utils/cn'
-import uploadFile from '@/utils/supabase/uploadFile'
-import useBoundStore from '@/stores'
 import Keyword from './Keyword'
 import { useParams } from 'next/navigation'
 import { useActions } from '@/providers/ActionsProvider'
@@ -21,6 +19,9 @@ import createKeyword from '@/actions/createKeyword'
 import QRCode from './QRCode'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
+import useUserStore from '@/stores/userStore'
+import useGalleryStore from '@/stores/galleryStore'
+import uploadFile from '@/actions/uploadFile'
 
 const Actions = () => {
   const {
@@ -35,9 +36,8 @@ const Actions = () => {
   } = useActions()
   const { y } = useWindowScroll()
   const { galleryId } = useParams<{ galleryId: string }>()
-  const { images, keywordId, setKeyword, toggleSelect } = useBoundStore(
-    (state) => state
-  )
+  const { keywordId, setKeyword } = useUserStore()
+  const { images, toggleSelect } = useGalleryStore()
 
   // qrcode
   const [qrcodeHidden, setQRCodeHidden] = useState(true)
@@ -129,7 +129,7 @@ const Actions = () => {
       <div
         ref={ref}
         className={cn(
-          'w-full fixed bottom-0 p-6 transition-all duration-300 ',
+          'w-full fixed bottom-0 p-6 transition-all duration-300',
           actionsHidden
             ? 'opacity-0 pointer-events-none'
             : 'opacity-100 pointer-events-auto'
@@ -137,7 +137,7 @@ const Actions = () => {
       >
         <div
           className={cn(
-            'flex items-center justify-around bg-black/75 rounded-3xl transition-all duration-300 justify-self-center',
+            'flex items-center justify-around bg-black rounded-3xl transition-all duration-300 justify-self-center',
             actionsClosed ? 'size-8' : 'w-full h-[72px]'
           )}
         >

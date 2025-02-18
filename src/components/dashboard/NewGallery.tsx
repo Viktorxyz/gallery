@@ -7,7 +7,10 @@ const NewGallery = () => {
   const router = useRouter()
 
   return (
-    <IconButton icon="IconPlus" onClick={() => router.push('/new-gallery')} />
+    <IconButton
+      icon="IconPlus"
+      onClick={() => router.push('/dashboard/new-gallery')}
+    />
   )
 }
 

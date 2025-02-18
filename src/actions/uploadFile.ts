@@ -1,5 +1,5 @@
 'use server'
-import { createClient } from './client'
+import { createClient } from '../utils/supabase/client'
 import { v4 as uuidv4 } from 'uuid'
 
 const supabase = createClient()

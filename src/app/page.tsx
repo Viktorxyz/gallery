@@ -1,26 +1,15 @@
-import Galleries from '@/components/index/Galleries'
-import TopBar from '@/components/TopBar'
-import { createClient } from '@/utils/supabase/client'
+import Actions from '@/components/index/Actions'
 import React from 'react'
 
-const supabase = createClient()
-
-const Page = async () => {
-  const { data } = await supabase
-    .from('galleries')
-    .select('gallery_id,gallery_name')
-
-  const galleries = data.map((gallery) => ({
-    id: gallery.gallery_id,
-    name: gallery.gallery_name
-  }))
-
+const page = () => {
   return (
-    <div className="flex flex-col mx-6 mt-6">
-      <TopBar title="Galleries" className="sticky top-6" />
-      <Galleries galleries={galleries} />
+    <div className="flex flex-col">
+      <div className="flex flex-1 text-7xl tracking-tighter items-center justify-center">
+        Galleries
+      </div>
+      <Actions />
     </div>
   )
 }
 
-export default Page
+export default page

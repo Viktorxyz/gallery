@@ -12,8 +12,10 @@ import IconSpinner from '../../public/icons/Spinner.svg'
 import IconKey from '../../public/icons/Key.svg'
 import IconQRCode from '../../public/icons/QRCode.svg'
 import IconDownload from '../../public/icons/Download.svg'
+import IconArrowRight from '../../public/icons/ArrowRight.svg'
 
 export {
+  IconArrowRight,
   IconDownload,
   IconHeartOutlined,
   IconQRCode,

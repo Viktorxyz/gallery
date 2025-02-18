@@ -1,5 +1,4 @@
 'use client'
-import useBoundStore from '@/stores'
 import { usePinch } from '@use-gesture/react'
 import { useEffect, useRef, useState } from 'react'
 import GalleryImage from './GalleryImage'
@@ -7,12 +6,14 @@ import toggleLikeAction from '@/actions/toggleLike'
 import { createClient } from '@/utils/supabase/client'
 import { useActions } from '@/providers/ActionsProvider'
 import { GalleryImageMap } from '@/types/gallery'
+import useUserStore from '@/stores/userStore'
+import useGalleryStore from '@/stores/galleryStore'
 
 type GalleryProps = {
   initialImages: GalleryImageMap
 }
 
-const COLS = 2
+const COLS = 1
 const MIN_COLS = 1
 const MAX_COLS = 4
 
@@ -21,8 +22,8 @@ const supabase = createClient()
 const Gallery = ({ initialImages }: GalleryProps) => {
   const galleryRef = useRef(null)
   const [cols, setCols] = useState<number>(COLS)
-  const { images, toggleLike, toggleSelect, setImages, keywordId } =
-    useBoundStore((state) => state)
+  const { keywordId } = useUserStore()
+  const { images, toggleSelect, toggleLike, setImages } = useGalleryStore()
   const { actions, setActions } = useActions()
 
   useEffect(() => {
