@@ -18,7 +18,8 @@ export default async function Page({
     .from('galleries')
     .list(galleryId, {
       limit: 100,
-      offset: 0
+      offset: 0,
+      sortBy: { column: 'created_at', order: 'desc' }
     })
 
   const { data: images } = await supabase
@@ -37,6 +38,7 @@ export default async function Page({
     files.map((file) => [
       file.id,
       {
+        id: file.id,
         src: supabase.storage
           .from('galleries')
           .getPublicUrl(`${galleryId}/${file.name}`).data.publicUrl,

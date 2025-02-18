@@ -2,7 +2,10 @@
 
 import {
   IconDownload,
+  IconImage,
+  IconImageThin,
   IconKey,
+  IconKeyThin,
   IconMenu,
   IconPlus,
   IconQRCode,
@@ -22,6 +25,8 @@ import { saveAs } from 'file-saver'
 import useUserStore from '@/stores/userStore'
 import useGalleryStore from '@/stores/galleryStore'
 import uploadFile from '@/actions/uploadFile'
+import { GalleryId, GalleryImage, GalleryImageMap } from '@/types/gallery'
+import { v4 as uuidv4 } from 'uuid'
 
 const Actions = () => {
   const {
@@ -36,8 +41,8 @@ const Actions = () => {
   } = useActions()
   const { y } = useWindowScroll()
   const { galleryId } = useParams<{ galleryId: string }>()
-  const { keywordId, setKeyword } = useUserStore()
-  const { images, toggleSelect } = useGalleryStore()
+  const { keyword, keywordId, setKeyword } = useUserStore()
+  const { images, toggleSelect, setImage, addImages } = useGalleryStore()
 
   // qrcode
   const [qrcodeHidden, setQRCodeHidden] = useState(true)
@@ -72,13 +77,42 @@ const Actions = () => {
   const uploadImages = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
-      for (const file of files) await uploadFile(keywordId, galleryId, file)
+
+      const filesWithTempKey = files.map((file) => ({ key: uuidv4(), file }))
+
+      const images: GalleryImageMap = new Map<GalleryId, GalleryImage>(
+        filesWithTempKey.map(({ key, file }) => [
+          key,
+          {
+            id: key,
+            src: URL.createObjectURL(file),
+            uploading: true,
+            selected: false,
+            liked: false,
+            likes: 0,
+            keyword
+          }
+        ])
+      )
+
+      addImages(images)
+
+      for (const { key, file } of filesWithTempKey) {
+        const onUploaded = async () => {
+          const { id } = await uploadFile(keywordId, galleryId, file)
+          setImage(key, {
+            id,
+            uploading: false
+          })
+        }
+        onUploaded()
+      }
     }
   }
 
   const stopSelecting = () => {
     setActions('default')
-    images.forEach((image, id) => image.selected && toggleSelect(id))
+    images.forEach((image, key) => image.selected && toggleSelect(key))
   }
 
   const openKeyword = useCallback(() => {
@@ -104,12 +138,12 @@ const Actions = () => {
     const folder = zip.folder('images')
 
     const downloadPromises = Array.from(images.entries()).map(
-      async ([id, image]) => {
+      async ([key, image]) => {
         if (image.selected) {
           try {
             const response = await fetch(image.src)
             const blob = await response.blob()
-            folder.file(`${id}.jpg`, blob)
+            folder.file(`${key}.jpg`, blob)
           } catch (error) {
             console.error(`Failed to fetch ${image.src}`, error)
           }
@@ -145,10 +179,10 @@ const Actions = () => {
             <IconMenu onClick={openActions} className="scale-75 icon-action" />
           ) : actions === 'default' ? (
             <>
-              <IconKey onClick={openKeyword} className="icon-action" />
+              <IconKeyThin onClick={openKeyword} className="icon-action" />
               <IconQRCode onClick={showQRCode} className="icon-action" />
               <label>
-                <IconPlus className="icon-action" />
+                <IconImageThin className="icon-action scale-110" />
                 {keywordId ? (
                   <input
                     onChange={uploadImages}

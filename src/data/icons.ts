@@ -13,8 +13,14 @@ import IconKey from '../../public/icons/Key.svg'
 import IconQRCode from '../../public/icons/QRCode.svg'
 import IconDownload from '../../public/icons/Download.svg'
 import IconArrowRight from '../../public/icons/ArrowRight.svg'
+import IconImage from '../../public/icons/Image.svg'
+import IconImageThin from '../../public/icons/ImageThin.svg'
+import IconKeyThin from '../../public/icons/KeyThin.svg'
 
 export {
+  IconKeyThin,
+  IconImage,
+  IconImageThin,
   IconArrowRight,
   IconDownload,
   IconHeartOutlined,

@@ -1,4 +1,4 @@
-import { GalleryImageMap } from '@/types/gallery'
+import { GalleryImage, GalleryImageMap } from '@/types/gallery'
 import { enableMapSet } from 'immer'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
@@ -10,8 +10,10 @@ export type GalleryState = {
 }
 
 export type GalleryActions = {
-  toggleLike: (id: string) => void
-  toggleSelect: (id: string) => void
+  toggleLike: (key: string) => void
+  toggleSelect: (key: string) => void
+  toggleUploading: (key: string) => void
+  setImage: (key: string, imageProps?: Partial<GalleryImage>) => void
   setImages: (images: GalleryImageMap) => void
   addImages: (images: GalleryImageMap) => void
 }
@@ -26,27 +28,37 @@ const useGalleryStore = create<GalleryStore>()(
   immer((set) => ({
     ...defaultInitState,
 
-    toggleLike: (id) =>
+    toggleLike: (key) =>
       set((state) => {
-        const image = state.images.get(id)
+        const image = state.images.get(key)
         if (image) {
           image.liked = !image.liked
           image.likes += image.liked ? 1 : -1
         }
       }),
 
-    toggleSelect: (id) =>
+    toggleSelect: (key) =>
       set((state) => {
-        const image = state.images.get(id)
+        const image = state.images.get(key)
         if (image) image.selected = !image.selected
+      }),
+
+    toggleUploading: (key) =>
+      set((state) => {
+        const image = state.images.get(key)
+        if (image) image.uploading = !image.uploading
+      }),
+
+    setImage: (key, imageProps) =>
+      set((state) => {
+        const image = state.images.get(key)
+        if (image) state.images.set(key, { ...image, ...imageProps })
       }),
 
     setImages: (images) => set({ images }),
 
     addImages: (newImages) =>
-      set((state) =>
-        newImages.forEach((image, id) => state.images.set(id, image))
-      )
+      set((state) => ({ images: new Map([...newImages, ...state.images]) }))
   }))
 )
 

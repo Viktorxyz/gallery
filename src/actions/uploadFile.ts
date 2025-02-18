@@ -11,13 +11,20 @@ const uploadFile = async (keywordId: string, galleryId: string, file: File) => {
 
   const path = `${galleryId}/${fileUuid}.${fileExtension}`
 
-  const { data } = await supabase.storage.from('galleries').upload(path, file)
+  const {
+    data: { id }
+  } = await supabase.storage.from('galleries').upload(path, file)
 
-  await supabase.from('images').insert({
-    image_id: data.id,
-    gallery_id: galleryId,
-    keyword_id: keywordId
-  })
+  await supabase
+    .from('images')
+    .insert({
+      image_id: id,
+      gallery_id: galleryId,
+      keyword_id: keywordId
+    })
+    .select('image_id')
+
+  return { id }
 }
 
 export default uploadFile

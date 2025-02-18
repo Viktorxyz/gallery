@@ -47,19 +47,19 @@ const Gallery = ({ initialImages }: GalleryProps) => {
     scaleBounds: { min: MIN_COLS, max: MAX_COLS }
   })
 
-  const handleSelect = (id: string) => {
+  const handleSelect = (key: string) => {
     if (actions === 'default') return
-    toggleSelect(id)
+    toggleSelect(key)
   }
 
-  const startSelecting = (id: string) => {
+  const startSelecting = (key: string) => {
     setActions('selecting')
-    toggleSelect(id)
+    toggleSelect(key)
   }
 
-  const handleLike = (id: string) => {
-    toggleLikeAction(id, keywordId)
-    toggleLike(id)
+  const handleLike = (key: string) => {
+    toggleLikeAction(images.get(key).id, keywordId)
+    toggleLike(key)
   }
 
   return (
@@ -70,25 +70,25 @@ const Gallery = ({ initialImages }: GalleryProps) => {
         columns: cols
       }}
     >
-      {initialImages.size > 0 ? (
+      {initialImages?.size > 0 || images?.size > 0 ? (
         images ? (
-          Array.from(images.entries()).map(([id, image]) => (
+          Array.from(images.entries()).map(([key, image]) => (
             <GalleryImage
               {...image}
-              onClick={() => handleSelect(id)}
-              onLike={() => handleLike(id)}
-              onLongPress={() => startSelecting(id)}
-              key={id}
+              onClick={() => handleSelect(key)}
+              onLike={() => handleLike(key)}
+              onLongPress={() => startSelecting(key)}
+              key={key}
             />
           ))
         ) : (
-          Array.from(initialImages.entries()).map(([id, image]) => (
+          Array.from(initialImages.entries()).map(([key, image]) => (
             <GalleryImage
               {...image}
-              onClick={() => handleSelect(id)}
-              onLike={() => handleLike(id)}
-              onLongPress={() => startSelecting(id)}
-              key={id}
+              onClick={() => handleSelect(key)}
+              onLike={() => handleLike(key)}
+              onLongPress={() => startSelecting(key)}
+              key={key}
             />
           ))
         )
