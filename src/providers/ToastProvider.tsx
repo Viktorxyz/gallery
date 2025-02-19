@@ -1,7 +1,13 @@
 'use client'
 
 import ToastRefreshImages from '@/components/gallery/ToastRefreshImages'
-import { createContext, useCallback, useContext, useState } from 'react'
+import {
+  createContext,
+  ReactNode,
+  useCallback,
+  useContext,
+  useState
+} from 'react'
 
 type ToastContextType = {
   toastHidden: boolean
@@ -11,7 +17,11 @@ type ToastContextType = {
 
 const ToastContext = createContext<null | ToastContextType>(null)
 
-const ToastProvider = ({ children }) => {
+type ToastProviderProps = {
+  children: ReactNode
+}
+
+const ToastProvider = ({ children }: ToastProviderProps) => {
   const [toastHidden, setToastHidden] = useState(true)
 
   const showToast = useCallback(() => setToastHidden(false), [setToastHidden])

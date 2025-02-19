@@ -1,9 +1,10 @@
 'use server'
-import { createClient } from '@/utils/supabase/client'
 
-const supabase = createClient()
+import createClient from '@/utils/supabase/server'
 
 const toggleLike = async (imageId: string, keywordId: string) => {
+  const supabase = await createClient()
+
   const { data: like } = await supabase
     .from('image_likes')
     .select('image_id')

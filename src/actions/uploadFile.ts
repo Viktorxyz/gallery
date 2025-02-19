@@ -1,10 +1,10 @@
 'use server'
-import { createClient } from '../utils/supabase/client'
+import createClient from '@/utils/supabase/server'
 import { v4 as uuidv4 } from 'uuid'
 
-const supabase = createClient()
-
 const uploadFile = async (keywordId: string, galleryId: string, file: File) => {
+  const supabase = await createClient()
+
   const fileName = file.name
   const fileExtension = fileName.slice(fileName.lastIndexOf('.') + 1)
   const fileUuid = uuidv4()

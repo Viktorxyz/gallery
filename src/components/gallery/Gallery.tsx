@@ -3,15 +3,15 @@ import { usePinch } from '@use-gesture/react'
 import { useEffect, useRef, useState } from 'react'
 import GalleryImage from './GalleryImage'
 import toggleLikeAction from '@/actions/toggleLike'
-import { createClient } from '@/utils/supabase/client'
 import { useActions } from '@/providers/ActionsProvider'
-import { GalleryImageMap } from '@/types/gallery'
 import useUserStore from '@/stores/userStore'
 import useGalleryStore from '@/stores/galleryStore'
 import { useToast } from '@/providers/ToastProvider'
+import { GalleryMap } from '@/types/gallery'
+import createClient from '@/utils/supabase/client'
 
 type GalleryProps = {
-  initialImages: GalleryImageMap
+  initialImages: GalleryMap
 }
 
 const COLS = 1
@@ -59,7 +59,7 @@ const Gallery = ({ initialImages }: GalleryProps) => {
         }
       )
       .subscribe()
-  }, [supabase, keywordId])
+  }, [keywordId, showToast])
 
   usePinch(({ offset: [s] }) => setCols(Math.ceil(MAX_COLS + MIN_COLS - s)), {
     target: galleryRef,

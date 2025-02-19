@@ -21,7 +21,7 @@ import { saveAs } from 'file-saver'
 import useUserStore from '@/stores/userStore'
 import useGalleryStore from '@/stores/galleryStore'
 import uploadFile from '@/actions/uploadFile'
-import { GalleryId, GalleryImage, GalleryImageMap } from '@/types/gallery'
+import { GalleryId, GalleryImage, GalleryMap } from '@/types/gallery'
 import { v4 as uuidv4 } from 'uuid'
 
 const Actions = () => {
@@ -78,7 +78,7 @@ const Actions = () => {
 
       const filesWithTempKey = files.map((file) => ({ key: uuidv4(), file }))
 
-      const images: GalleryImageMap = new Map<GalleryId, GalleryImage>(
+      const images: GalleryMap = new Map<GalleryId, GalleryImage>(
         filesWithTempKey.map(({ key, file }) => [
           key,
           {

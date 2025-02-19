@@ -1,14 +1,15 @@
 'use client'
 
-import { createClient } from '@/utils/supabase/client'
 import IconButton from '../IconButton'
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Button from '../Button'
+import createClient from '@/utils/supabase/client'
+
+const supabase = createClient()
 
 const Actions = () => {
   const router = useRouter()
-  const supabase = createClient()
   const [user, setUser] = useState(null)
 
   const signOut = async () => await supabase.auth.signOut()
@@ -30,7 +31,7 @@ const Actions = () => {
     getUser()
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth, setUser])
+  }, [setUser])
 
   return (
     <div className="flex items-end fixed p-6 bottom-0 w-full">
