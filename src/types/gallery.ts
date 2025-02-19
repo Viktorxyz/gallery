@@ -10,4 +10,4 @@ export type GalleryImage = {
   liked: boolean
 }
 
-export type GalleryImageMap = Map<GalleryId, GalleryImage>
+export type GalleryMap = Map<GalleryId, GalleryImage>

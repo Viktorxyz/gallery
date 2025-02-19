@@ -1,4 +1,4 @@
-import { GalleryImage, GalleryImageMap } from '@/types/gallery'
+import { GalleryImage, GalleryMap } from '@/types/gallery'
 import { enableMapSet } from 'immer'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
@@ -6,7 +6,7 @@ import { immer } from 'zustand/middleware/immer'
 enableMapSet()
 
 export type GalleryState = {
-  images: GalleryImageMap
+  images: GalleryMap
 }
 
 export type GalleryActions = {
@@ -14,8 +14,8 @@ export type GalleryActions = {
   toggleSelect: (key: string) => void
   toggleUploading: (key: string) => void
   setImage: (key: string, imageProps?: Partial<GalleryImage>) => void
-  setImages: (images: GalleryImageMap) => void
-  addImages: (images: GalleryImageMap) => void
+  setImages: (images: GalleryMap) => void
+  addImages: (images: GalleryMap) => void
 }
 
 export type GalleryStore = GalleryState & GalleryActions
