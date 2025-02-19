@@ -59,7 +59,7 @@ const Gallery = ({ initialImages }: GalleryProps) => {
         }
       )
       .subscribe()
-  }, [supabase, keywordId])
+  }, [keywordId, showToast])
 
   usePinch(({ offset: [s] }) => setCols(Math.ceil(MAX_COLS + MIN_COLS - s)), {
     target: galleryRef,

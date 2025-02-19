@@ -4,7 +4,7 @@ import useUserStore from '@/stores/userStore'
 import createClient from '@/utils/supabase/client'
 import React, { createContext, ReactNode, useContext, useEffect } from 'react'
 
-type KeywordContextType = {}
+type KeywordContextType = object
 
 const KeywordContext = createContext<KeywordContextType>(null)
 
@@ -15,18 +15,18 @@ type KeywordProviderProps = {
 const supabase = createClient()
 
 const KeywordProvider = ({ children }: KeywordProviderProps) => {
-  const { setKeyword, keywordId } = useUserStore()
+  const { reset, keywordId } = useUserStore()
 
   useEffect(() => {
     const checkKeyword = async () => {
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('keywords')
         .select('*')
         .eq('keyword_id', keywordId)
-      if (!data[0]) setKeyword({ keyword: null, keywordId: null })
+      if (!data[0]) reset()
     }
     if (keywordId) checkKeyword()
-  }, [keywordId])
+  }, [keywordId, reset])
 
   const value = {}
 

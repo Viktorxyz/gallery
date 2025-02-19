@@ -7,6 +7,7 @@ export type UserState = {
 }
 
 export type UserActions = {
+  reset: () => void
   setKeyword: ({
     keyword,
     keywordId
@@ -26,9 +27,9 @@ export const defaultInitState: UserState = {
 const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
-      keyword: null,
-      keywordId: null,
-      setKeyword: ({ keyword, keywordId }) => set({ keyword, keywordId })
+      ...defaultInitState,
+      setKeyword: ({ keyword, keywordId }) => set({ keyword, keywordId }),
+      reset: () => set(defaultInitState)
     }),
     { name: 'user-store' }
   )

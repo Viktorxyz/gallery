@@ -1,6 +1,5 @@
 'use server'
 import createClient from '@/utils/supabase/server'
-import supabasePromise from '@/utils/supabase/server'
 import { v4 as uuidv4 } from 'uuid'
 
 const uploadFile = async (keywordId: string, galleryId: string, file: File) => {
