@@ -1,7 +1,6 @@
 'use client'
 import { usePinch } from '@use-gesture/react'
-import { useEffect, useRef, useState } from 'react'
-import GalleryImage from './GalleryImage'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import toggleLikeAction from '@/actions/toggleLike'
 import { useActions } from '@/providers/ActionsProvider'
 import useUserStore from '@/stores/userStore'
@@ -9,24 +8,38 @@ import useGalleryStore from '@/stores/galleryStore'
 import { useToast } from '@/providers/ToastProvider'
 import { GalleryMap } from '@/types/gallery'
 import createClient from '@/utils/supabase/client'
+import Row from './Row'
+import generateImageRows from '@/utils/generateImageRows'
 
 type GalleryProps = {
   initialImages: GalleryMap
 }
 
-const COLS = 1
-const MIN_COLS = 1
-const MAX_COLS = 4
+const MAX_ZOOM_LEVEL = 7
+const MIN_ZOOM_LEVEL = 1
 
 const supabase = createClient()
 
 const Gallery = ({ initialImages }: GalleryProps) => {
   const galleryRef = useRef(null)
-  const [cols, setCols] = useState<number>(COLS)
-  const { keywordId } = useUserStore()
-  const { images, toggleSelect, toggleLike, setImages } = useGalleryStore()
-  const { actions, setActions } = useActions()
+  const [pinching, setPinching] = useState(false)
+
   const { showToast } = useToast()
+  const { actions, setActions } = useActions()
+  const { zoomLevel, setZoomLevel, keywordId } = useUserStore()
+  const { images, toggleSelect, toggleLike, setImages } = useGalleryStore()
+
+  const imageRows = useMemo(
+    () =>
+      generateImageRows(
+        Array.from(images ? images : initialImages).map(([mapKey, value]) => ({
+          mapKey,
+          ...value
+        })),
+        zoomLevel
+      ),
+    [images, zoomLevel]
+  )
 
   useEffect(() => {
     const setImagesWithUserData = async () => {
@@ -44,7 +57,27 @@ const Gallery = ({ initialImages }: GalleryProps) => {
     else setImages(initialImages)
   }, [setImages, initialImages, keywordId])
 
+  usePinch(
+    ({ offset: [x], last }) => {
+      setPinching(!last)
+      const zoomLevel = MAX_ZOOM_LEVEL + MIN_ZOOM_LEVEL - x
+      const rounded = Math.round(zoomLevel)
+      if (last) setZoomLevel({ zoomLevel: rounded })
+      else setZoomLevel({ zoomLevel: zoomLevel })
+    },
+    {
+      target: galleryRef,
+      rubberband: 0,
+      from: ({ offset: [x] }) => [Math.round(x), 0],
+      scaleBounds: {
+        max: MAX_ZOOM_LEVEL,
+        min: MIN_ZOOM_LEVEL
+      }
+    }
+  )
+
   useEffect(() => {
+    // new image uploaded notification
     supabase
       .channel('images')
       .on(
@@ -61,66 +94,21 @@ const Gallery = ({ initialImages }: GalleryProps) => {
       .subscribe()
   }, [keywordId, showToast])
 
-  usePinch(({ offset: [s] }) => setCols(Math.ceil(MAX_COLS + MIN_COLS - s)), {
-    target: galleryRef,
-    scaleBounds: { min: MIN_COLS, max: MAX_COLS }
-  })
-
-  const handleSelect = (key: string) => {
-    if (actions === 'default') return
-    toggleSelect(key)
-  }
-
-  const startSelecting = (key: string) => {
-    setActions('selecting')
-    toggleSelect(key)
-  }
-
-  const handleLike = (key: string) => {
-    toggleLikeAction(images.get(key).id, keywordId)
-    toggleLike(key)
-  }
-
   return (
     <div
+      className="flex-1 bg-black text-white break-inside-avoid touch-pan-y"
       ref={galleryRef}
-      className="gap-0 break-inside-avoid touch-pan-y"
-      style={{
-        columns: cols
-      }}
     >
-      {initialImages?.size > 0 || images?.size > 0 ? (
-        images ? (
-          Array.from(images.entries()).map(([key, image]) => (
-            <GalleryImage
-              {...image}
-              onClick={() => handleSelect(key)}
-              onLike={() => handleLike(key)}
-              onLongPress={() => startSelecting(key)}
-              key={key}
-            />
-          ))
-        ) : (
-          Array.from(initialImages.entries()).map(([key, image]) => (
-            <GalleryImage
-              {...image}
-              onClick={() => handleSelect(key)}
-              onLike={() => handleLike(key)}
-              onLongPress={() => startSelecting(key)}
-              key={key}
-            />
-          ))
-        )
-      ) : (
-        <div className="flex items-center justify-center h-full">
-          <div className="flex items-end justify-center relative">
-            <span className="text-neutral-800 text-7xl font-thin">
-              Galerija
-            </span>
-            <span className="absolute font-thin text-2xl">je prazna</span>
-          </div>
-        </div>
-      )}
+      <div className="flex flex-col">
+        {imageRows.map(({ aspectRatio, images }, index) => (
+          <Row
+            pinching={pinching}
+            aspectRatio={aspectRatio}
+            images={images}
+            key={index}
+          />
+        ))}
+      </div>
     </div>
   )
 }

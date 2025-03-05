@@ -11,7 +11,7 @@ const getImages = async ({ galleryId }: Props) => {
 
   const { data, error } = await supabase
     .from('images')
-    .select('image_id,keyword_id,likes_count')
+    .select('image_id,keyword_id,likes_count,width,height,aspect_ratio')
     .eq('gallery_id', galleryId)
 
   return { images: data, error }

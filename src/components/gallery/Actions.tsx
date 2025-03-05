@@ -1,16 +1,15 @@
 'use client'
 
-import {
-  IconDownload,
-  IconImageThin,
-  IconMenu,
-  IconQRCode,
-  IconX
-} from '@/data/icons'
+import { IconPlus, IconQRCode } from '@/data/icons'
 import useLongPressAway from 'hooks/useLongPressAway'
 import useWindowScroll from 'hooks/useWindowScroll'
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react'
-import cn from 'utils/cn'
+import React, {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react'
 import Keyword from './Keyword'
 import { useParams } from 'next/navigation'
 import { useActions } from '@/providers/ActionsProvider'
@@ -23,24 +22,25 @@ import useGalleryStore from '@/stores/galleryStore'
 import uploadFile from '@/actions/uploadFile'
 import { GalleryId, GalleryImage, GalleryMap } from '@/types/gallery'
 import { v4 as uuidv4 } from 'uuid'
+import imageSize from 'image-size'
+import useOnStuck from '@/hooks/useOnStuck'
+import cn from '@/utils/cn'
 
-const Actions = () => {
-  const {
-    actions,
-    setActions,
-    actionsClosed,
-    actionsHidden,
-    hideActions,
-    showActions,
-    openActions,
-    closeActions
-  } = useActions()
-  const { y } = useWindowScroll()
+type ActionsProps = {
+  text: string
+  numberOfPhotos: number
+  numberOfVideos: number
+}
+
+const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
+  const headerRef = useRef(null)
+  const [headerHidden, setHeaderHidden] = useState(true)
+  const [keywordError, setKeywordError] = useState<string>(null)
+
   const { galleryId } = useParams<{ galleryId: string }>()
   const { keyword, keywordId, setKeyword } = useUserStore()
+  const { setActions, hideActions, showActions } = useActions()
   const { images, toggleSelect, setImage, addImages } = useGalleryStore()
-
-  const [keywordError, setKeywordError] = useState<string>(null)
 
   // qrcode
   const [qrcodeHidden, setQRCodeHidden] = useState(true)
@@ -50,7 +50,6 @@ const Actions = () => {
   )
   const hideQRCode = useCallback(() => setQRCodeHidden(true), [setQRCodeHidden])
 
-  // keyword form
   const [keywordFormHidden, setKeywordFormHidden] = useState(true)
   const showKeywordForm = useCallback(
     () => setKeywordFormHidden(false),
@@ -61,25 +60,17 @@ const Actions = () => {
     [setKeywordFormHidden]
   )
 
-  // on long press away hide actions
-  const ref = useLongPressAway<HTMLDivElement>(hideActions, showActions)
-
-  // on scroll hide actions
-  useEffect(() => {
-    const id = setTimeout(showActions, 300)
-    hideActions()
-    return () => clearTimeout(id)
-  }, [y, hideActions, showActions])
-
-  // uploading images
   const uploadImages = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
 
       const filesWithTempKey = files.map((file) => ({ key: uuidv4(), file }))
 
-      const images: GalleryMap = new Map<GalleryId, GalleryImage>(
-        filesWithTempKey.map(({ key, file }) => [
+      const imagesArrayPromise = filesWithTempKey.map(async ({ key, file }) => {
+        const arrayBuffer = await file.arrayBuffer()
+        const uint8Array = new Uint8Array(arrayBuffer)
+        const { width, height } = imageSize(uint8Array)
+        return [
           key,
           {
             id: key,
@@ -88,10 +79,17 @@ const Actions = () => {
             selected: false,
             liked: false,
             likes: 0,
-            keyword
+            keyword,
+            width,
+            height,
+            aspectRatio: width / height
           }
-        ])
-      )
+        ] as [string, GalleryImage]
+      })
+
+      const imagesArray = await Promise.all(imagesArrayPromise)
+
+      const images: GalleryMap = new Map<GalleryId, GalleryImage>(imagesArray)
 
       addImages(images)
 
@@ -158,9 +156,46 @@ const Actions = () => {
     stopSelecting()
   }
 
+  const showHeader = useCallback(() => setHeaderHidden(false), [])
+  const hideHeader = useCallback(() => setHeaderHidden(true), [])
+  useOnStuck(showHeader, hideHeader, { target: headerRef })
+
   return (
     <>
-      <div
+      <header
+        ref={headerRef}
+        className="z-50 flex items-center justify-between sticky -top-px bg-black px-6 py-4"
+      >
+        <div
+          className={cn(
+            'flex flex-col transition-opacity',
+            headerHidden && 'opacity-0'
+          )}
+        >
+          <div className="text-base">{text}</div>
+          <div className="text-sm text-zinc-400">
+            {numberOfPhotos} photos {numberOfVideos} videos
+          </div>
+        </div>
+        <div className="flex gap-6">
+          <IconQRCode onClick={showQRCode} className="icon-action" />
+          <label>
+            <IconPlus className="icon-action scale-110" />
+            {keywordId ? (
+              <input
+                onChange={uploadImages}
+                className="hidden"
+                type="file"
+                accept="image/*"
+                multiple
+              />
+            ) : (
+              <input type="button" className="hidden" onClick={openKeyword} />
+            )}
+          </label>
+        </div>
+      </header>
+      {/* <div
         ref={ref}
         className={cn(
           'w-full fixed bottom-0 p-6 transition-all duration-300',
@@ -179,7 +214,6 @@ const Actions = () => {
             <IconMenu onClick={openActions} className="scale-75 icon-action" />
           ) : actions === 'default' ? (
             <>
-              {/* <IconKeyThin onClick={openKeyword} className="icon-action" /> */}
               <IconQRCode onClick={showQRCode} className="icon-action" />
               <label>
                 <IconImageThin className="icon-action scale-110" />
@@ -210,7 +244,7 @@ const Actions = () => {
             </>
           )}
         </div>
-      </div>
+      </div> */}
       {!qrcodeHidden && <QRCode onClickAway={hideQRCode} />}
       {!keywordFormHidden && (
         <Keyword

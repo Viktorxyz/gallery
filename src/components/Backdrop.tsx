@@ -6,7 +6,11 @@ type BackdropProps = {
 }
 
 const Backdrop = ({ className }: BackdropProps) => {
-  return <div className={cn('fixed inset-0 bg-black/75', className)}></div>
+  return (
+    <div
+      className={cn('fixed w-screen h-screen bg-black/75 z-40', className)}
+    ></div>
+  )
 }
 
 export default Backdrop

@@ -7,6 +7,7 @@
     "@use-gesture/react": "^10.3.1",
     "file-saver": "^2.0.5",
     "framer-motion": "^12.0.6",
+    "image-size": "^2.0.0",
     "immer": "^10.1.1",
     "jszip": "^3.10.1",
     "next": "^15.1.6",
@@ -29,8 +30,9 @@
     "@types/node": "22.12.0",
     "@types/react": "^19.0.8",
     "autoprefixer": "^10.4.20",
-    "eslint": "9.19.0",
+    "eslint": "^9.19.0",
     "eslint-config-next": "15.1.6",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "postcss": "^8.5.1",
     "tailwindcss": "^4.0.1",
     "typescript": "5.7.3"
