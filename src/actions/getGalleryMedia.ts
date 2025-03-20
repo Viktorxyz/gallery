@@ -6,7 +6,7 @@ type Props = {
   galleryId: string
 }
 
-const getFiles = async ({ galleryId }: Props) => {
+const getGalleryMedia = async ({ galleryId }: Props) => {
   const supabase = await createClient()
 
   const { data, error } = await supabase.storage
@@ -17,7 +17,7 @@ const getFiles = async ({ galleryId }: Props) => {
       sortBy: { column: 'created_at', order: 'desc' }
     })
 
-  return { files: data, error }
+  return { media: data, error }
 }
 
-export default getFiles
+export default getGalleryMedia

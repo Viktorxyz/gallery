@@ -3,25 +3,27 @@ import IconButton from '../IconButton'
 import cn from '@/utils/cn'
 import { useToast } from '@/providers/ToastProvider'
 import { useParams } from 'next/navigation'
-import useGalleryStore from '@/stores/galleryStore'
 import getGallery from '@/actions/getGallery'
+import { useGallery } from '@/providers/GalleryProvider'
 
 type ToastRefreshImagesProps = {
   className?: string
 }
 
 const ToastRefreshImages = ({ className }: ToastRefreshImagesProps) => {
+  const media = useGallery((state) => state.media)
+  const addMedia = useGallery((state) => state.addMedia)
+
   const { hideToast } = useToast()
   const { galleryId } = useParams<{ galleryId: string }>()
-  const { images: currentImages, addImages } = useGalleryStore()
 
   const refetchImages = async () => {
-    const { gallery } = await getGallery({ galleryId })
+    const { media: newMedia } = await getGallery({ galleryId })
 
-    Array.from(currentImages.keys()).forEach((id) => {
-      if (gallery.get(id) !== null) gallery.delete(id)
+    Array.from(media.keys()).forEach((id) => {
+      if (newMedia.get(id) !== null) newMedia.delete(id)
     })
-    addImages(gallery)
+    addMedia(newMedia)
     hideToast()
   }
 

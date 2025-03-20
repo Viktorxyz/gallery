@@ -1,7 +1,8 @@
 'use client'
+
 import React from 'react'
-import Backdrop from '../Backdrop'
-import Input from '../Input'
+import Backdrop from './Backdrop'
+import Input from './Input'
 import { IconCheck } from '@/data/icons'
 import useClickAway from '@/hooks/useClickAway'
 

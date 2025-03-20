@@ -6,15 +6,15 @@ type Props = {
   galleryId: string
 }
 
-const getImages = async ({ galleryId }: Props) => {
+const getGalleryKeywords = async ({ galleryId }: Props) => {
   const supabase = await createClient()
 
   const { data, error } = await supabase
-    .from('images')
-    .select('image_id,keyword_id,likes_count')
+    .from('keywords')
+    .select('keyword_id,keyword')
     .eq('gallery_id', galleryId)
 
-  return { images: data, error }
+  return { keywords: data, error }
 }
 
-export default getImages
+export default getGalleryKeywords

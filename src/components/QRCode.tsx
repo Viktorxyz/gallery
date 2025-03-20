@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Backdrop from '../Backdrop'
+import Backdrop from './Backdrop'
 import qrcode from 'qrcode'
 
 type QRCodeProps = {
@@ -31,7 +31,7 @@ const QRCode = ({ onClickAway }: QRCodeProps) => {
   return (
     <>
       <div
-        className="fixed inset-0 z-50 flex items-center justify-center"
+        className="fixed h-screen w-screen z-50 flex items-center justify-center"
         onClick={onClickAway}
       >
         <img className="w-3xs aspect-square" src={src} alt="" />

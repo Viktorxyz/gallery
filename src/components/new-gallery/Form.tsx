@@ -2,7 +2,7 @@
 import React, { useCallback, useState } from 'react'
 import Actions from './Actions'
 import Input from '../Input'
-import createNewGallery from '@/actions/createNewGallery'
+import createGallery from '@/actions/createGallery'
 import { useRouter } from 'next/navigation'
 
 const Form = () => {
@@ -12,7 +12,7 @@ const Form = () => {
   const formAction = useCallback(
     async (formData: FormData) => {
       const galleryName = formData.get('gallery-name') as string
-      const res = await createNewGallery(galleryName)
+      const res = await createGallery(galleryName)
       if (res?.error) setError('Name already in use.')
       else router.push('/')
     },

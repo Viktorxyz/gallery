@@ -17,8 +17,18 @@ import IconImage from '../../public/icons/Image.svg'
 import IconImageThin from '../../public/icons/ImageThin.svg'
 import IconKeyThin from '../../public/icons/KeyThin.svg'
 import IconRotateRight from '../../public/icons/RotateRight.svg'
+import IconRight from '../../public/icons/Right.svg'
+import IconLeft from '../../public/icons/Left.svg'
+import IconUp from '../../public/icons/Up.svg'
+import IconDown from '../../public/icons/Down.svg'
+import IconShare from '../../public/icons/Share.svg'
 
 export {
+  IconDown,
+  IconLeft,
+  IconRight,
+  IconShare,
+  IconUp,
   IconRotateRight,
   IconKeyThin,
   IconImage,

@@ -2,7 +2,7 @@
 
 import createClient from '@/utils/supabase/server'
 
-const createNewGallery = async (galleryName: string) => {
+const createGallery = async (galleryName: string) => {
   const supabase = await createClient()
 
   const { error } = await supabase
@@ -12,4 +12,4 @@ const createNewGallery = async (galleryName: string) => {
   if (error) return { error }
 }
 
-export default createNewGallery
+export default createGallery
