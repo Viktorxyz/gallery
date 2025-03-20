@@ -6,7 +6,7 @@ type Props = {
   galleryId: string
 }
 
-const getKeywords = async ({ galleryId }: Props) => {
+const getGalleryKeywords = async ({ galleryId }: Props) => {
   const supabase = await createClient()
 
   const { data, error } = await supabase
@@ -17,4 +17,4 @@ const getKeywords = async ({ galleryId }: Props) => {
   return { keywords: data, error }
 }
 
-export default getKeywords
+export default getGalleryKeywords

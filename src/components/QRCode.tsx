@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Backdrop from '../Backdrop'
+import Backdrop from './Backdrop'
 import qrcode from 'qrcode'
 
 type QRCodeProps = {

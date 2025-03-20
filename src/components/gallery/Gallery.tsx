@@ -1,61 +1,59 @@
 'use client'
+
 import { usePinch } from '@use-gesture/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import toggleLikeAction from '@/actions/toggleLike'
-import { useActions } from '@/providers/ActionsProvider'
 import useUserStore from '@/stores/userStore'
-import useGalleryStore from '@/stores/galleryStore'
 import { useToast } from '@/providers/ToastProvider'
-import { GalleryMap } from '@/types/gallery'
 import createClient from '@/utils/supabase/client'
 import Row from './Row'
-import generateImageRows from '@/utils/generateImageRows'
-
-type GalleryProps = {
-  initialImages: GalleryMap
-}
+import generateImageRows from '@/utils/generateMediaRows'
+import Header from './Header'
+import Actions from './Actions'
+import { useGallery } from '@/providers/GalleryProvider'
 
 const MAX_ZOOM_LEVEL = 7
 const MIN_ZOOM_LEVEL = 1
 
 const supabase = createClient()
 
-const Gallery = ({ initialImages }: GalleryProps) => {
+const Gallery = () => {
+  const media = useGallery((state) => state.media)
+  const setMedia = useGallery((state) => state.setMedia)
+  const galleryName = useGallery((state) => state.galleryName)
+
   const galleryRef = useRef(null)
   const [pinching, setPinching] = useState(false)
 
   const { showToast } = useToast()
-  const { actions, setActions } = useActions()
   const { zoomLevel, setZoomLevel, keywordId } = useUserStore()
-  const { images, toggleSelect, toggleLike, setImages } = useGalleryStore()
 
   const imageRows = useMemo(
+    // this is not being updated when media is changed!!!
     () =>
       generateImageRows(
-        Array.from(images ? images : initialImages).map(([mapKey, value]) => ({
+        Array.from(media).map(([mapKey, value]) => ({
           mapKey,
           ...value
         })),
         zoomLevel
       ),
-    [images, zoomLevel]
+    [media, zoomLevel]
   )
 
   useEffect(() => {
     const setImagesWithUserData = async () => {
       const { data: userLikes } = await supabase
-        .from('image_likes')
-        .select('image_id')
+        .from('media_likes')
+        .select('media_id')
         .eq('keyword_id', keywordId)
-      for (const { image_id } of userLikes) {
-        const image = initialImages.get(image_id)
-        if (image) initialImages.set(image_id, { ...image, liked: true })
+      for (const { media_id } of userLikes) {
+        const image = media.get(media_id)
+        if (image) media.set(media_id, { ...image, liked: true })
       }
-      setImages(initialImages)
+      setMedia(media)
     }
     if (keywordId) setImagesWithUserData()
-    else setImages(initialImages)
-  }, [setImages, initialImages, keywordId])
+  }, [setMedia, keywordId])
 
   usePinch(
     ({ offset: [x], last }) => {
@@ -79,13 +77,13 @@ const Gallery = ({ initialImages }: GalleryProps) => {
   useEffect(() => {
     // new image uploaded notification
     supabase
-      .channel('images')
+      .channel('media')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'images'
+          table: 'media'
         },
         (payload) => {
           if (payload.new.keyword_id !== keywordId) showToast()
@@ -95,21 +93,25 @@ const Gallery = ({ initialImages }: GalleryProps) => {
   }, [keywordId, showToast])
 
   return (
-    <div
-      className="flex-1 bg-black text-white break-inside-avoid touch-pan-y"
-      ref={galleryRef}
-    >
-      <div className="flex flex-col">
-        {imageRows.map(({ aspectRatio, images }, index) => (
-          <Row
-            pinching={pinching}
-            aspectRatio={aspectRatio}
-            images={images}
-            key={index}
-          />
-        ))}
+    <>
+      <Header text={galleryName} />
+      <Actions text={galleryName} numberOfPhotos={0} numberOfVideos={0} />
+      <div
+        className="min-h-screen bg-black text-white break-inside-avoid touch-pan-y"
+        ref={galleryRef}
+      >
+        <div className="flex flex-col">
+          {imageRows.map(({ aspectRatio, media }, index) => (
+            <Row
+              pinching={pinching}
+              aspectRatio={aspectRatio}
+              media={media}
+              key={index}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 

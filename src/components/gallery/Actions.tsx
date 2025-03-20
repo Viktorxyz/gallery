@@ -1,8 +1,6 @@
 'use client'
 
 import { IconPlus, IconQRCode } from '@/data/icons'
-import useLongPressAway from 'hooks/useLongPressAway'
-import useWindowScroll from 'hooks/useWindowScroll'
 import React, {
   ChangeEvent,
   useCallback,
@@ -10,21 +8,22 @@ import React, {
   useRef,
   useState
 } from 'react'
-import Keyword from './Keyword'
-import { useParams } from 'next/navigation'
+import Keyword from '../Keyword'
 import { useActions } from '@/providers/ActionsProvider'
 import createKeyword from '@/actions/createKeyword'
-import QRCode from './QRCode'
+import QRCode from '../QRCode'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import useUserStore from '@/stores/userStore'
-import useGalleryStore from '@/stores/galleryStore'
 import uploadFile from '@/actions/uploadFile'
-import { GalleryId, GalleryImage, GalleryMap } from '@/types/gallery'
 import { v4 as uuidv4 } from 'uuid'
 import imageSize from 'image-size'
 import useOnStuck from '@/hooks/useOnStuck'
 import cn from '@/utils/cn'
+import useWindowScroll from '@/hooks/useWindowScroll'
+import { GalleryId, MediaMap, MediaMime, MediaType } from '@/types/gallery'
+import { useGallery } from '@/providers/GalleryProvider'
+import getVideoDimensionsClient from '@/utils/getVideoDimensionsClient'
 
 type ActionsProps = {
   text: string
@@ -33,14 +32,21 @@ type ActionsProps = {
 }
 
 const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
+  const media = useGallery((state) => state.media)
+  const setSingleMedia = useGallery((state) => state.setSingleMedia)
+  const addMedia = useGallery((state) => state.addMedia)
+  const toggleSelect = useGallery((state) => state.toggleSelect)
+  const galleryId = useGallery((state) => state.galleryId)
+
   const headerRef = useRef(null)
   const [headerHidden, setHeaderHidden] = useState(true)
+  const [headerClosed, setHeaderClosed] = useState(false)
   const [keywordError, setKeywordError] = useState<string>(null)
 
-  const { galleryId } = useParams<{ galleryId: string }>()
   const { keyword, keywordId, setKeyword } = useUserStore()
   const { setActions, hideActions, showActions } = useActions()
-  const { images, toggleSelect, setImage, addImages } = useGalleryStore()
+  const { y } = useWindowScroll()
+  const [prevY, setPrevY] = useState(y)
 
   // qrcode
   const [qrcodeHidden, setQRCodeHidden] = useState(true)
@@ -60,16 +66,39 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
     [setKeywordFormHidden]
   )
 
-  const uploadImages = async (e: ChangeEvent<HTMLInputElement>) => {
+  const uploadMedia = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
 
       const filesWithTempKey = files.map((file) => ({ key: uuidv4(), file }))
 
-      const imagesArrayPromise = filesWithTempKey.map(async ({ key, file }) => {
-        const arrayBuffer = await file.arrayBuffer()
-        const uint8Array = new Uint8Array(arrayBuffer)
-        const { width, height } = imageSize(uint8Array)
+      const mediaPromise = filesWithTempKey.map(async ({ key, file }) => {
+        const metadata = {
+          width: 0,
+          height: 0,
+          aspectRatio: 0,
+          duration: undefined,
+          type: undefined
+        }
+        if (file.type.startsWith('image')) {
+          const arrayBuffer = await file.arrayBuffer()
+          const uint8Array = new Uint8Array(arrayBuffer)
+          const { width, height } = imageSize(uint8Array)
+          metadata.width = width
+          metadata.height = height
+          metadata.aspectRatio = width / height
+          metadata.type = MediaMime.IMAGE
+        } else if (file.type.startsWith('video')) {
+          const { width, height, duration } = await getVideoDimensionsClient(
+            file
+          )
+          metadata.width = width
+          metadata.height = height
+          metadata.aspectRatio = width / height
+          metadata.duration = duration
+          metadata.type = MediaMime.VIDEO
+        }
+
         return [
           key,
           {
@@ -80,23 +109,25 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
             liked: false,
             likes: 0,
             keyword,
-            width,
-            height,
-            aspectRatio: width / height
+            width: metadata.width,
+            height: metadata.height,
+            duration: metadata.duration,
+            type: metadata.type,
+            aspectRatio: metadata.aspectRatio
           }
-        ] as [string, GalleryImage]
+        ] as [string, MediaType]
       })
 
-      const imagesArray = await Promise.all(imagesArrayPromise)
+      const mediaArray = await Promise.all(mediaPromise)
 
-      const images: GalleryMap = new Map<GalleryId, GalleryImage>(imagesArray)
+      const mediaMap: MediaMap = new Map<GalleryId, MediaType>(mediaArray)
 
-      addImages(images)
+      addMedia(mediaMap)
 
       for (const { key, file } of filesWithTempKey) {
         const onUploaded = async () => {
           const { id } = await uploadFile(keywordId, galleryId, file)
-          setImage(key, {
+          setSingleMedia(key, {
             id,
             uploading: false
           })
@@ -108,7 +139,7 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
 
   const stopSelecting = () => {
     setActions('default')
-    images.forEach((image, key) => image.selected && toggleSelect(key))
+    media.forEach((m, key) => m.selected && toggleSelect(key))
   }
 
   const openKeyword = useCallback(() => {
@@ -135,15 +166,15 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
     const zip = new JSZip()
     const folder = zip.folder('images')
 
-    const downloadPromises = Array.from(images.entries()).map(
-      async ([key, image]) => {
-        if (image.selected) {
+    const downloadPromises = Array.from(media.entries()).map(
+      async ([key, m]) => {
+        if (m.selected) {
           try {
-            const response = await fetch(image.src)
+            const response = await fetch(m.src)
             const blob = await response.blob()
             folder.file(`${key}.jpg`, blob)
           } catch (error) {
-            console.error(`Failed to fetch ${image.src}`, error)
+            console.error(`Failed to fetch ${m.src}`, error)
           }
         }
       }
@@ -158,13 +189,23 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
 
   const showHeader = useCallback(() => setHeaderHidden(false), [])
   const hideHeader = useCallback(() => setHeaderHidden(true), [])
+
   useOnStuck(showHeader, hideHeader, { target: headerRef })
+
+  useEffect(() => {
+    if (y > prevY && !headerHidden) setHeaderClosed(true)
+    else setHeaderClosed(false)
+    setPrevY(y)
+  }, [y])
 
   return (
     <>
       <header
         ref={headerRef}
-        className="z-50 flex items-center justify-between sticky -top-px bg-black px-6 py-4"
+        className={cn(
+          'transition-[translate] duration-300 z-50 flex items-center justify-between sticky -top-px bg-black px-6 py-4',
+          headerClosed && '-translate-y-full'
+        )}
       >
         <div
           className={cn(
@@ -183,10 +224,10 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
             <IconPlus className="icon-action scale-110" />
             {keywordId ? (
               <input
-                onChange={uploadImages}
+                onChange={uploadMedia}
                 className="hidden"
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 multiple
               />
             ) : (
@@ -195,56 +236,6 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
           </label>
         </div>
       </header>
-      {/* <div
-        ref={ref}
-        className={cn(
-          'w-full fixed bottom-0 p-6 transition-all duration-300',
-          actionsHidden
-            ? 'opacity-0 pointer-events-none'
-            : 'opacity-100 pointer-events-auto'
-        )}
-      >
-        <div
-          className={cn(
-            'flex items-center justify-around bg-black rounded-3xl transition-all duration-300 justify-self-center',
-            actionsClosed ? 'size-8' : 'w-full h-[72px]'
-          )}
-        >
-          {actionsClosed ? (
-            <IconMenu onClick={openActions} className="scale-75 icon-action" />
-          ) : actions === 'default' ? (
-            <>
-              <IconQRCode onClick={showQRCode} className="icon-action" />
-              <label>
-                <IconImageThin className="icon-action scale-110" />
-                {keywordId ? (
-                  <input
-                    onChange={uploadImages}
-                    className="hidden"
-                    type="file"
-                    multiple
-                  />
-                ) : (
-                  <input
-                    type="button"
-                    className="hidden"
-                    onClick={openKeyword}
-                  />
-                )}
-              </label>
-              <IconX onClick={closeActions} className="icon-action" />
-            </>
-          ) : (
-            <>
-              <IconX className="icon-action" onClick={stopSelecting} />
-              <IconDownload
-                className="icon-action"
-                onClick={downloadSelectedImages}
-              />
-            </>
-          )}
-        </div>
-      </div> */}
       {!qrcodeHidden && <QRCode onClickAway={hideQRCode} />}
       {!keywordFormHidden && (
         <Keyword

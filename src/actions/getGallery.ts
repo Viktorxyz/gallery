@@ -1,63 +1,59 @@
 'use server'
 
 import { convertArrayToObject } from '@/utils/object'
-import getFiles from './getFiles'
-import getImages from './getImages'
-import getKeywords from './getKeywords'
-import { GalleryMap } from '@/types/gallery'
+import { GalleryType, MediaMap } from '@/types/gallery'
 import createClient from '@/utils/supabase/server'
 import getGalleryName from './getGalleryName'
+import getGalleryKeywords from './getGalleryKeywords'
+import getGalleryMedia from './getGalleryMedia'
+import getGalleryMediaMetadata from './getGalleryMediaMetadata'
 
 type Props = {
   galleryId: string
 }
 
-const getGallery = async ({ galleryId }: Props) => {
+const getGallery = async ({ galleryId }: Props): Promise<GalleryType> => {
   const supabase = await createClient()
 
-  const { files, error: filesError } = await getFiles({ galleryId })
-  const { images, error: imagesError } = await getImages({ galleryId })
-  const { keywords, error: keywordsError } = await getKeywords({ galleryId })
-  const { galleryName, error: galleryNameError } = await getGalleryName({
-    galleryId
-  })
+  const { media } = await getGalleryMedia({ galleryId })
+  const { mediaMetadata } = await getGalleryMediaMetadata({ galleryId })
+  const { keywords } = await getGalleryKeywords({ galleryId })
+  const { galleryName } = await getGalleryName({ galleryId })
 
-  const imagesObj = images ? convertArrayToObject(images, 'image_id') : {}
+  const metadata = mediaMetadata
+    ? convertArrayToObject(mediaMetadata, 'media_id')
+    : {}
 
   const keywordsObj = keywords
     ? convertArrayToObject(keywords, 'keyword_id')
     : {}
 
-  const gallery: GalleryMap = new Map(
-    files.map((file) => [
+  const mediaMap: MediaMap = new Map(
+    media.map((file) => [
       file.id,
       {
         id: file.id,
         src: supabase.storage
           .from('galleries')
           .getPublicUrl(`${galleryId}/${file.name}`).data.publicUrl,
-        keyword: keywordsObj[imagesObj[file.id].keyword_id].keyword,
-        likes: imagesObj[file.id].likes_count,
-        aspectRatio: imagesObj[file.id].aspect_ratio,
-        width: imagesObj[file.id].width,
-        height: imagesObj[file.id].height,
+        keyword: keywordsObj[metadata[file.id].keyword_id].keyword,
+        likes: metadata[file.id].likes_count,
+        aspectRatio: metadata[file.id].aspect_ratio,
+        width: metadata[file.id].width,
+        height: metadata[file.id].height,
         liked: false,
         uploading: false,
-        selected: false
+        selected: false,
+        type: metadata[file.id].type,
+        duration: metadata[file.id].duration
       }
     ])
   )
 
   return {
-    gallery,
-    galleryName,
-    error:
-      filesError ??
-      imagesError ??
-      keywordsError ??
-      galleryName ??
-      galleryNameError ??
-      null
+    media: mediaMap,
+    galleryId,
+    galleryName
   }
 }
 

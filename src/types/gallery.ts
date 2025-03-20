@@ -1,7 +1,14 @@
 export type GalleryId = string
 
-export type GalleryImage = {
-  id: GalleryId
+export type MediaId = string
+
+export enum MediaMime {
+  IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO'
+}
+
+export type MediaType = {
+  id: MediaId
   src: string
   width: number
   height: number
@@ -11,13 +18,25 @@ export type GalleryImage = {
   keyword: string
   likes: number
   liked: boolean
+  type: MediaMime
+  duration?: number
 }
 
-export type GalleryMap = Map<GalleryId, GalleryImage>
+export type MediaMap = Map<GalleryId, MediaType>
+
+export type GalleryType = {
+  galleryId: GalleryId
+  galleryName: string
+  media: MediaMap
+}
+
+export type RowMediaType = {
+  mapKey: string
+} & MediaType
 
 export type RowType = {
   aspectRatio: number
-  images: GalleryImage[]
+  media: RowMediaType[]
 }
 
 export type RowProps = {
