@@ -1,6 +1,7 @@
 import { MediaMime } from '@/types/gallery'
 import Image from 'next/image'
 import { RefObject, useEffect, useRef } from 'react'
+import Player from './Player'
 
 type MediaProps = {
   active: boolean
@@ -8,8 +9,10 @@ type MediaProps = {
   rootRef: RefObject<HTMLDivElement>
   src: string
   type: MediaMime
-  duration: number
+  muted: boolean
+  toggleMuted: () => void
   onChange: (value: string) => void
+  actionsHidden: boolean
 }
 
 const Media = ({
@@ -18,8 +21,10 @@ const Media = ({
   rootRef,
   src,
   type,
-  duration,
-  onChange
+  muted,
+  toggleMuted,
+  onChange,
+  actionsHidden
 }: MediaProps) => {
   const ref = useRef<HTMLDivElement>(null)
 
@@ -58,7 +63,13 @@ const Media = ({
       {type === MediaMime.IMAGE ? (
         <Image src={src} fill alt="" className="object-contain" />
       ) : (
-        <video src={src} autoPlay muted />
+        <Player
+          src={src}
+          muted={muted}
+          toggleMuted={toggleMuted}
+          active={active}
+          actionsHidden={actionsHidden}
+        />
       )}
     </div>
   )
