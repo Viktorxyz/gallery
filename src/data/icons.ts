@@ -22,8 +22,16 @@ import IconLeft from '../../public/icons/Left.svg'
 import IconUp from '../../public/icons/Up.svg'
 import IconDown from '../../public/icons/Down.svg'
 import IconShare from '../../public/icons/Share.svg'
+import IconPlay from '../../public/icons/Play.svg'
+import IconPause from '../../public/icons/Pause.svg'
+import IconVolume from '../../public/icons/Volume.svg'
+import IconMute from '../../public/icons/Mute.svg'
 
 export {
+  IconMute,
+  IconPause,
+  IconPlay,
+  IconVolume,
   IconDown,
   IconLeft,
   IconRight,
