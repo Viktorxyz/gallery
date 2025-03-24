@@ -7,20 +7,32 @@ import useUserStore from '@/stores/userStore'
 import cn from '@/utils/cn'
 import { useApp } from '@/providers/AppProvider'
 import { useGallery } from '@/providers/GalleryProvider'
+import Image from 'next/image'
+import { MediaMime, RowMediaType } from '@/types/gallery'
+import VideoBadge from './VideoBadge'
 
-const MediaContainer = ({
-  aspectRatio,
-  pinching,
-  liked,
-  selected,
-  uploading,
-  mapKey,
-  children
-}) => {
-  const toggleSelect = useGallery((state) => state.toggleSelect)
+type MediaProps = {
+  media: RowMediaType
+  pinching: boolean
+}
+
+const Media = ({ media, pinching }: MediaProps) => {
+  const {
+    aspectRatio,
+    selected,
+    uploading,
+    liked,
+    type,
+    src,
+    mapKey,
+    duration
+  } = media
+  const { showCarousel } = useApp()
   const { zoomLevel } = useUserStore()
   const { actions, setActions } = useActions()
-  const { showCarousel } = useApp()
+
+  const toggleSelect = useGallery((state) => state.toggleSelect)
+  const gap = (-1 / 2) * zoomLevel + 9 / 2
 
   const select = useCallback(() => {
     setActions('selecting')
@@ -58,9 +70,31 @@ const MediaContainer = ({
           <IconHeartFill className="z-10 fill-rose-500 justify-self-end" />
         )
       )}
-      {children}
+      {type === MediaMime.IMAGE ? (
+        <Image
+          className="object-cover z-0"
+          style={{
+            padding: `${gap}px`
+          }}
+          src={src}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          alt=""
+        />
+      ) : (
+        <>
+          <video
+            className="object-cover"
+            style={{ padding: `${gap}px` }}
+            src={src}
+            autoPlay
+            muted
+          />
+          <VideoBadge margin={gap} />
+        </>
+      )}
     </div>
   )
 }
 
-export default MediaContainer
+export default Media

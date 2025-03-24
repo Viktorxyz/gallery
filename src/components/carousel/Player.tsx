@@ -23,9 +23,14 @@ const Player = ({
 
   const onTimeUpdate = useCallback(
     (e: React.SyntheticEvent<HTMLVideoElement, Event>) =>
-      setCurrentTime(Math.floor(e.currentTarget.currentTime)),
+      setCurrentTime(e.currentTarget.currentTime),
     []
   )
+
+  const onCurrentTimeChange = useCallback((currentTime: number) => {
+    videoRef.current.currentTime = currentTime
+    setCurrentTime(currentTime)
+  }, [])
 
   const onEnded = useCallback(() => {
     setPlaying(false)
@@ -55,6 +60,7 @@ const Player = ({
   return (
     <>
       <video
+        disableRemotePlayback
         ref={videoRef}
         src={src}
         muted={muted}
@@ -67,6 +73,7 @@ const Player = ({
           actionsHidden && 'pointer-events-none opacity-0'
         )}
         currentTime={currentTime}
+        onCurrentTimeChange={onCurrentTimeChange}
         duration={Math.floor(videoRef.current?.duration) ?? 0}
         muted={muted}
         playing={playing}

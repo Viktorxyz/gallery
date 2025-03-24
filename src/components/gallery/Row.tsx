@@ -1,13 +1,8 @@
-import { MediaMime, RowProps } from '@/types/gallery'
+import { RowProps } from '@/types/gallery'
 import cn from '@/utils/cn'
-import Image from 'next/image'
-import useUserStore from '@/stores/userStore'
-import MediaContainer from './MediaContainer'
+import Media from './Media'
 
 const Row = ({ pinching, aspectRatio, media }: RowProps) => {
-  const { zoomLevel } = useUserStore()
-  const gap = (-1 / 2) * zoomLevel + 9 / 2
-
   return (
     <div
       className={cn(
@@ -18,29 +13,8 @@ const Row = ({ pinching, aspectRatio, media }: RowProps) => {
         aspectRatio
       }}
     >
-      {media.map(({ src, type, ...rest }, index) => (
-        <MediaContainer pinching={pinching} {...rest} key={index}>
-          {type === MediaMime.IMAGE ? (
-            <Image
-              className="object-cover z-0"
-              style={{
-                padding: `${gap}px`
-              }}
-              src={src}
-              fill
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-              alt=""
-            />
-          ) : (
-            <video
-              className="object-cover"
-              style={{ padding: `${gap}px` }}
-              src={src}
-              autoPlay
-              muted
-            />
-          )}
-        </MediaContainer>
+      {media.map((media, i) => (
+        <Media media={media} pinching={pinching} key={i} />
       ))}
     </div>
   )
