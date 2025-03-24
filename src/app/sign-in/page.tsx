@@ -4,11 +4,14 @@ import Input from '@/components/Input'
 import TopBar from '@/components/TopBar'
 import React from 'react'
 
-const page = () => {
+function Page() {
   return (
-    <div className="flex flex-col m-6">
-      <TopBar title="Sign In" />
-      <form action={signIn} className="flex-1 flex flex-col justify-end gap-16">
+    <>
+      <TopBar title="Sign In" className="p-6" />
+      <form
+        action={signIn}
+        className="flex-1 flex flex-col justify-end gap-16 p-6"
+      >
         <div className="flex flex-col gap-6">
           <Input name="email" variant="line" placeholder="email" />
           <Input
@@ -24,8 +27,8 @@ const page = () => {
           icon="IconCheck"
         />
       </form>
-    </div>
+    </>
   )
 }
 
-export default page
+export default Page

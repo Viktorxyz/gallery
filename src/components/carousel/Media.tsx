@@ -6,7 +6,7 @@ import Player from './Player'
 type MediaProps = {
   active: boolean
   mapKey: string
-  rootRef: RefObject<HTMLDivElement>
+  rootRef: RefObject<HTMLDivElement | null>
   src: string
   type: MediaMime
   muted: boolean
@@ -30,7 +30,7 @@ const Media = ({
 
   useEffect(() => {
     if (active)
-      ref.current.scrollIntoView({
+      ref.current?.scrollIntoView({
         behavior: 'instant',
         block: 'center',
         inline: 'center'
@@ -50,10 +50,10 @@ const Media = ({
       }
     )
 
-    observer.observe(ref.current)
+    if (ref.current) observer.observe(ref.current)
 
     return () => observer.disconnect()
-  }, [])
+  }, [mapKey, onChange, rootRef])
 
   return (
     <div

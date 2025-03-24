@@ -4,7 +4,7 @@ type VideoBadgeProps = {
   margin?: number
 }
 
-const VideoBadge = ({ margin }: VideoBadgeProps) => {
+const VideoBadge = ({ margin = 0 }: VideoBadgeProps) => {
   return (
     <div
       className="flex items-center z-50 absolute bg-black/35 rounded-md size-6"

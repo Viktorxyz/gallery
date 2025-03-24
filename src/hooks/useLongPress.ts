@@ -11,7 +11,8 @@ export default function useLongPress<T extends HTMLElement>(
   options: Options<T> = {}
 ) {
   const { delay = 1500, target } = options
-  const ref = target ?? useRef<T | null>(null)
+  const defaultRef = useRef<T | null>(null)
+  const ref = target ?? defaultRef
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastScrollY = useRef<number>(0)
 
@@ -54,7 +55,7 @@ export default function useLongPress<T extends HTMLElement>(
       }
       window.removeEventListener('pointerup', handlePointerUp)
     }
-  }, [onLongPress, delay, target, currentScrollY])
+  }, [onLongPress, delay, target, currentScrollY, ref])
 
   return target
 }

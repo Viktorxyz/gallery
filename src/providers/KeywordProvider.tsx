@@ -6,7 +6,7 @@ import React, { createContext, ReactNode, useContext, useEffect } from 'react'
 
 type KeywordContextType = object
 
-const KeywordContext = createContext<KeywordContextType>(null)
+const KeywordContext = createContext<KeywordContextType | null>(null)
 
 type KeywordProviderProps = {
   children: ReactNode
@@ -19,10 +19,13 @@ const KeywordProvider = ({ children }: KeywordProviderProps) => {
 
   useEffect(() => {
     const checkKeyword = async () => {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('keywords')
         .select('*')
         .eq('keyword_id', keywordId)
+
+      if (error) return
+
       if (!data[0]) reset()
     }
     if (keywordId) checkKeyword()

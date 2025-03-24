@@ -3,12 +3,12 @@ import React from 'react'
 
 const page = () => {
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-1 text-7xl tracking-tighter items-center justify-center">
-        Galleries
+    <>
+      <div className="flex-1 flex text-7xl tracking-tighter items-center justify-center">
+        Glimpsee
       </div>
-      <Actions />
-    </div>
+      <Actions className="fixed p-6 bottom-0" />
+    </>
   )
 }
 

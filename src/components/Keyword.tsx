@@ -9,14 +9,15 @@ import useClickAway from '@/hooks/useClickAway'
 type KeywordProps = {
   error?: string
   onClickAway?: () => void
-  onSubmit?: (value?: string) => void
+  onSubmit?: (value: string) => Promise<void>
 }
 
 const Keyword = ({ error, onClickAway, onSubmit }: KeywordProps) => {
   const ref = useClickAway<HTMLFormElement>(onClickAway)
 
-  const action = (formData: FormData) =>
-    onSubmit(formData.get('keyword') as string)
+  const action = (formData: FormData) => {
+    if (onSubmit) onSubmit(formData.get('keyword') as string)
+  }
 
   return (
     <>

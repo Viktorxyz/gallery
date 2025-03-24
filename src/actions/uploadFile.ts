@@ -1,5 +1,5 @@
 'use server'
-import { MediaMime } from '@/types/gallery'
+import { MediaMetadata, MediaMime } from '@/types/gallery'
 import getVideoDimensionsServer from '@/utils/getVideoDimensionsServer'
 import createClient from '@/utils/supabase/server'
 import { imageSize } from 'image-size'
@@ -14,11 +14,15 @@ const uploadFile = async (keywordId: string, galleryId: string, file: File) => {
 
   const path = `${galleryId}/${fileUuid}.${fileExtension}`
 
-  const {
-    data: { id }
-  } = await supabase.storage.from('galleries').upload(path, file)
+  const { data, error } = await supabase.storage
+    .from('galleries')
+    .upload(path, file)
 
-  const metadata = {
+  if (error) return { error }
+
+  const id = data.id
+
+  const metadata: MediaMetadata = {
     width: 0,
     height: 0,
     aspectRatio: 0,

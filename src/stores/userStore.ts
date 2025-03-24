@@ -4,7 +4,7 @@ import { persist } from 'zustand/middleware'
 export type UserState = {
   keyword?: string
   keywordId?: string
-  zoomLevel?: number
+  zoomLevel: number
 }
 
 export type UserActions = {
@@ -22,8 +22,8 @@ export type UserActions = {
 export type UserStore = UserState & UserActions
 
 export const defaultInitState: UserState = {
-  keyword: null,
-  keywordId: null,
+  keyword: undefined,
+  keywordId: undefined,
   zoomLevel: 3
 }
 

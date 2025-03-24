@@ -1,7 +1,7 @@
 import React from 'react'
 import IconButton from '../IconButton'
 import cn from '@/utils/cn'
-import { useToast } from '@/providers/ToastProvider'
+import { ToastContextType, useToast } from '@/providers/ToastProvider'
 import { useParams } from 'next/navigation'
 import getGallery from '@/actions/getGallery'
 import { useGallery } from '@/providers/GalleryProvider'
@@ -14,7 +14,7 @@ const ToastRefreshImages = ({ className }: ToastRefreshImagesProps) => {
   const media = useGallery((state) => state.media)
   const addMedia = useGallery((state) => state.addMedia)
 
-  const { hideToast } = useToast()
+  const { hideToast } = useToast() as ToastContextType
   const { galleryId } = useParams<{ galleryId: string }>()
 
   const refetchImages = async () => {

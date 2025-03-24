@@ -17,9 +17,9 @@ const getVideoDimensionsServer = async (
       const stream = metadata.streams.find((s) => s.codec_type === 'video')
       if (stream)
         resolve({
-          width: stream.width,
-          height: stream.height,
-          duration: metadata.format.duration
+          width: stream.width ?? 0,
+          height: stream.height ?? 0,
+          duration: metadata.format.duration ?? 0
         })
       else reject(new Error('No video stream found.'))
     })

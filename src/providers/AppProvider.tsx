@@ -1,6 +1,12 @@
 'use client'
 
-import { createContext, useCallback, useContext, useState } from 'react'
+import {
+  createContext,
+  PropsWithChildren,
+  useCallback,
+  useContext,
+  useState
+} from 'react'
 
 export enum AppScreen {
   GALLERY = 'GALLERY',
@@ -11,21 +17,23 @@ type ShowCarouselOptions = {
   scrollTo: string
 }
 
-type AppContextType = {
+export type AppContextType = {
   screen: AppScreen
   showGallery: () => void
-  showCarousel: (options?: ShowCarouselOptions) => void
+  showCarousel: (options: ShowCarouselOptions) => void
   carouselInitial: string
 }
 
-const AppContext = createContext<AppContextType>(null)
+const AppContext = createContext<AppContextType | null>(null)
 
-const AppProvider = ({ children }) => {
+type AppProviderProps = PropsWithChildren
+
+const AppProvider = ({ children }: AppProviderProps) => {
   const [screen, setScreen] = useState<AppScreen>(AppScreen.GALLERY)
-  const [carouselInitial, setCarouselInitial] = useState<string>()
+  const [carouselInitial, setCarouselInitial] = useState<string>('')
 
   const showGallery = useCallback(() => setScreen(AppScreen.GALLERY), [])
-  const showCarousel = useCallback((options?: ShowCarouselOptions) => {
+  const showCarousel = useCallback((options: ShowCarouselOptions) => {
     const { scrollTo } = options
     setScreen(AppScreen.CAROUSEL)
     setCarouselInitial(scrollTo)

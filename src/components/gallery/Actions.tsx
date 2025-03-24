@@ -9,11 +9,9 @@ import React, {
   useState
 } from 'react'
 import Keyword from '../Keyword'
-import { useActions } from '@/providers/ActionsProvider'
+import { ActionsContextType, useActions } from '@/providers/ActionsProvider'
 import createKeyword from '@/actions/createKeyword'
 import QRCode from '../QRCode'
-import JSZip from 'jszip'
-import { saveAs } from 'file-saver'
 import useUserStore from '@/stores/userStore'
 import uploadFile from '@/actions/uploadFile'
 import { v4 as uuidv4 } from 'uuid'
@@ -21,7 +19,13 @@ import imageSize from 'image-size'
 import useOnStuck from '@/hooks/useOnStuck'
 import cn from '@/utils/cn'
 import useWindowScroll from '@/hooks/useWindowScroll'
-import { GalleryId, MediaMap, MediaMime, MediaType } from '@/types/gallery'
+import {
+  GalleryId,
+  MediaMap,
+  MediaMetadata,
+  MediaMime,
+  MediaType
+} from '@/types/gallery'
 import { useGallery } from '@/providers/GalleryProvider'
 import getVideoDimensionsClient from '@/utils/getVideoDimensionsClient'
 
@@ -32,19 +36,17 @@ type ActionsProps = {
 }
 
 const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
-  const media = useGallery((state) => state.media)
   const setSingleMedia = useGallery((state) => state.setSingleMedia)
   const addMedia = useGallery((state) => state.addMedia)
-  const toggleSelect = useGallery((state) => state.toggleSelect)
   const galleryId = useGallery((state) => state.galleryId)
 
-  const headerRef = useRef(null)
+  const headerRef = useRef<HTMLDivElement>(null)
   const [headerHidden, setHeaderHidden] = useState(true)
   const [headerClosed, setHeaderClosed] = useState(false)
-  const [keywordError, setKeywordError] = useState<string>(null)
+  const [keywordError, setKeywordError] = useState<string>()
 
   const { keyword, keywordId, setKeyword } = useUserStore()
-  const { setActions, hideActions, showActions } = useActions()
+  const { hideActions, showActions } = useActions() as ActionsContextType
   const { y } = useWindowScroll()
   const [prevY, setPrevY] = useState(y)
 
@@ -67,13 +69,15 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
   )
 
   const uploadMedia = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (!keywordId) return
+
     if (e.target.files) {
       const files = Array.from(e.target.files)
 
       const filesWithTempKey = files.map((file) => ({ key: uuidv4(), file }))
 
       const mediaPromise = filesWithTempKey.map(async ({ key, file }) => {
-        const metadata = {
+        const metadata: MediaMetadata = {
           width: 0,
           height: 0,
           aspectRatio: 0,
@@ -137,10 +141,10 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
     }
   }
 
-  const stopSelecting = () => {
-    setActions('default')
-    media.forEach((m, key) => m.selected && toggleSelect(key))
-  }
+  // const stopSelecting = () => {
+  //   setActions('default')
+  //   media.forEach((m, key) => m.selected && toggleSelect(key))
+  // }
 
   const openKeyword = useCallback(() => {
     showKeywordForm()
@@ -162,30 +166,30 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
     }
   }
 
-  const downloadSelectedImages = async () => {
-    const zip = new JSZip()
-    const folder = zip.folder('images')
+  // const downloadSelectedImages = async () => {
+  //   const zip = new JSZip()
+  //   const folder = zip.folder('images')
 
-    const downloadPromises = Array.from(media.entries()).map(
-      async ([key, m]) => {
-        if (m.selected) {
-          try {
-            const response = await fetch(m.src)
-            const blob = await response.blob()
-            folder.file(`${key}.jpg`, blob)
-          } catch (error) {
-            console.error(`Failed to fetch ${m.src}`, error)
-          }
-        }
-      }
-    )
+  //   const downloadPromises = Array.from(media.entries()).map(
+  //     async ([key, m]) => {
+  //       if (m.selected) {
+  //         try {
+  //           const response = await fetch(m.src)
+  //           const blob = await response.blob()
+  //           folder.file(`${key}.jpg`, blob)
+  //         } catch (error) {
+  //           console.error(`Failed to fetch ${m.src}`, error)
+  //         }
+  //       }
+  //     }
+  //   )
 
-    await Promise.all(downloadPromises)
+  //   await Promise.all(downloadPromises)
 
-    const zipBlob = await zip.generateAsync({ type: 'blob' })
-    saveAs(zipBlob, 'images.zip')
-    stopSelecting()
-  }
+  //   const zipBlob = await zip.generateAsync({ type: 'blob' })
+  //   saveAs(zipBlob, 'images.zip')
+  //   stopSelecting()
+  // }
 
   const showHeader = useCallback(() => setHeaderHidden(false), [])
   const hideHeader = useCallback(() => setHeaderHidden(true), [])
@@ -196,7 +200,7 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
     if (y > prevY && !headerHidden) setHeaderClosed(true)
     else setHeaderClosed(false)
     setPrevY(y)
-  }, [y])
+  }, [headerHidden, prevY, y])
 
   return (
     <>

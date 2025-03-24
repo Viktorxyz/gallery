@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 
 const useClickAway = <T extends HTMLElement>(
-  callback: (e: MouseEvent) => void
+  callback?: (e: MouseEvent) => void
 ) => {
   const ref = useRef<T | null>(null)
 
@@ -10,7 +10,7 @@ const useClickAway = <T extends HTMLElement>(
       if (!ref || !ref.current || ref.current.contains(e.target as Node)) {
         return
       }
-      callback(e)
+      if (callback) callback(e)
     }
     document.addEventListener('mousedown', listener)
     return () => {

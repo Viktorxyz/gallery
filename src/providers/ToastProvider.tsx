@@ -9,7 +9,7 @@ import {
   useState
 } from 'react'
 
-type ToastContextType = {
+export type ToastContextType = {
   toastHidden: boolean
   showToast: () => void
   hideToast: () => void

@@ -5,12 +5,18 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Button from '../Button'
 import createClient from '@/utils/supabase/client'
+import cn from '@/utils/cn'
+import { User } from '@supabase/supabase-js'
 
 const supabase = createClient()
 
-const Actions = () => {
+type ActionsProps = {
+  className?: string
+}
+
+const Actions = ({ className }: ActionsProps) => {
   const router = useRouter()
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<User>()
 
   const signOut = async () => await supabase.auth.signOut()
 
@@ -19,13 +25,14 @@ const Actions = () => {
       const {
         data: { user }
       } = await supabase.auth.getUser()
-      setUser(user)
+
+      if (user) setUser(user)
     }
 
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
+      if (session) setUser(session.user)
     })
 
     getUser()
@@ -34,7 +41,7 @@ const Actions = () => {
   }, [setUser])
 
   return (
-    <div className="flex items-end fixed p-6 bottom-0 w-full">
+    <div className={cn('flex items-end w-full', className)}>
       {user && <Button onClick={signOut}>Sign Out</Button>}
       <IconButton
         onClick={() => router.push('/dashboard')}

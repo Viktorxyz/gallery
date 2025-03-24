@@ -1,9 +1,9 @@
-import { useEffect, useRef } from 'react'
+import { RefObject, useEffect, useRef } from 'react'
 
 const useOnStuck = <T extends HTMLElement>(
   onStuck: () => void,
   onUnstuck: () => void,
-  { target }: { target: React.RefObject<T> }
+  { target }: { target: RefObject<T | null> }
 ) => {
   const ref = useRef<T>(null)
   target ||= ref
@@ -24,7 +24,7 @@ const useOnStuck = <T extends HTMLElement>(
     observer.observe(target.current)
 
     return () => observer.disconnect()
-  }, [onStuck, onUnstuck])
+  }, [onStuck, onUnstuck, target])
 
   return target
 }

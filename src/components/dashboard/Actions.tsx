@@ -4,12 +4,12 @@ import cn from '@/utils/cn'
 import NewGallery from './NewGallery'
 
 type ActionsProps = {
-  searchRef: RefObject<HTMLInputElement>
+  searchRef: RefObject<HTMLInputElement | null>
   className?: string
 }
 
 const Actions = ({ searchRef, className }: ActionsProps) => {
-  const focusSearch = useCallback(() => searchRef.current.focus(), [searchRef])
+  const focusSearch = useCallback(() => searchRef.current?.focus(), [searchRef])
 
   return (
     <div

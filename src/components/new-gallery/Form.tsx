@@ -4,10 +4,15 @@ import Actions from './Actions'
 import Input from '../Input'
 import createGallery from '@/actions/createGallery'
 import { useRouter } from 'next/navigation'
+import cn from '@/utils/cn'
 
-const Form = () => {
+type FormProps = {
+  className?: string
+}
+
+const Form = ({ className }: FormProps) => {
   const router = useRouter()
-  const [error, setError] = useState(null)
+  const [error, setError] = useState<string>()
 
   const formAction = useCallback(
     async (formData: FormData) => {
@@ -20,8 +25,11 @@ const Form = () => {
   )
 
   return (
-    <form action={formAction} className="flex flex-col flex-1 justify-end">
-      <div className="mb-16">
+    <form
+      action={formAction}
+      className={cn('flex flex-col flex-1 justify-end', className)}
+    >
+      <div className="mb-36">
         <Input
           required
           autoFocus
@@ -31,7 +39,7 @@ const Form = () => {
           error={error}
         />
       </div>
-      <Actions />
+      <Actions className="fixed left-0 bottom-0 w-full px-6" />
     </form>
   )
 }
