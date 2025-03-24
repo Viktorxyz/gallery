@@ -1,13 +1,13 @@
 import { MediaMime } from '@/types/gallery'
 import cn from '@/utils/cn'
 import Image from 'next/image'
-import { RefObject, useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useRef } from 'react'
 
 type ThumbnailProps = {
   src: string
   type: MediaMime
   mapKey: string
-  rootRef: RefObject<HTMLDivElement>
+  rootRef: RefObject<HTMLDivElement | null>
   aspectRatio: number
   active: boolean
   initial: boolean
@@ -22,11 +22,11 @@ const Thumbnail = ({
   active,
   onChange
 }: ThumbnailProps) => {
-  const ref = useRef(null)
+  const ref = useRef<HTMLDivElement>(null)
 
   const handleClick = () => {
     onChange(mapKey)
-    ref.current.scrollIntoView({
+    ref.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'center',
       inline: 'center'
@@ -35,7 +35,7 @@ const Thumbnail = ({
 
   useEffect(() => {
     if (active)
-      ref.current.scrollIntoView({
+      ref.current?.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
         inline: 'center'

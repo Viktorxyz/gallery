@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react'
 import Button from '../Button'
 import createClient from '@/utils/supabase/client'
 import cn from '@/utils/cn'
+import { User } from '@supabase/supabase-js'
 
 const supabase = createClient()
 
@@ -15,7 +16,7 @@ type ActionsProps = {
 
 const Actions = ({ className }: ActionsProps) => {
   const router = useRouter()
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<User>()
 
   const signOut = async () => await supabase.auth.signOut()
 
@@ -24,13 +25,14 @@ const Actions = ({ className }: ActionsProps) => {
       const {
         data: { user }
       } = await supabase.auth.getUser()
-      setUser(user)
+
+      if (user) setUser(user)
     }
 
     const {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
+      if (session) setUser(session.user)
     })
 
     getUser()

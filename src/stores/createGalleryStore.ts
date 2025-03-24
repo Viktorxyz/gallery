@@ -19,9 +19,9 @@ export type GalleryActions = {
 export type GalleryStore = ReturnType<typeof createGalleryStore>
 
 const defaultInitState: GalleryState = {
-  galleryName: null,
-  galleryId: null,
-  media: null
+  galleryName: '',
+  galleryId: '',
+  media: new Map()
 }
 
 const createGalleryStore = (initProps?: Partial<GalleryType>) =>

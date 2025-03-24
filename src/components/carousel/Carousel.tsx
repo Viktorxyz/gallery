@@ -6,13 +6,11 @@ import Header from './Header'
 import Mini from './Mini'
 import Actions from './Actions'
 import cn from '@/utils/cn'
-import { useApp } from '@/providers/AppProvider'
+import { AppContextType, useApp } from '@/providers/AppProvider'
 import { useGallery } from '@/providers/GalleryProvider'
-import VideoControls from './VideoControls'
-import { MediaMime } from '@/types/gallery'
 
 const Carousel = () => {
-  const { carouselInitial } = useApp()
+  const { carouselInitial } = useApp() as AppContextType
   const media = useGallery((state) => state.media)
   const [muted, setMuted] = useState(true)
 
@@ -31,7 +29,7 @@ const Carousel = () => {
   return (
     <>
       <Header
-        text={`#${current.keyword}`}
+        text={`#${current?.keyword}`}
         className={cn(
           'transition-opacity duration-100 ease-linear',
           actionsHidden && 'pointer-events-none opacity-0'
@@ -43,9 +41,9 @@ const Carousel = () => {
         onClick={toggleActions}
       >
         {media &&
-          Array.from(media).map(([key, { id, src, type, duration }], index) => (
+          Array.from(media).map(([key, { id, src, type }], index) => (
             <Media
-              active={current.id === id}
+              active={current?.id === id}
               rootRef={rootRef}
               muted={muted}
               toggleMuted={toggleMuted}

@@ -9,7 +9,7 @@ import { GalleryType } from '@/types/gallery'
 import { createContext, PropsWithChildren, useContext, useRef } from 'react'
 import { useStore } from 'zustand'
 
-const GalleryContext = createContext<GalleryStore>(null)
+const GalleryContext = createContext<GalleryStore | null>(null)
 
 type GalleryProviderProps = PropsWithChildren<GalleryType>
 

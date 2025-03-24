@@ -1,12 +1,5 @@
 import cn from '@/utils/cn'
-import React, {
-  ChangeEvent,
-  DetailedHTMLProps,
-  useCallback,
-  useMemo,
-  useRef,
-  useState
-} from 'react'
+import React, { ChangeEvent, DetailedHTMLProps, useMemo } from 'react'
 
 type SliderProps = {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void
@@ -29,7 +22,7 @@ const Slider = ({
 }: SliderProps) => {
   const percentage = useMemo(
     () => ((Math.abs(min) + value) / (Math.abs(max) + Math.abs(min))) * 100,
-    [value]
+    [max, min, value]
   )
 
   return (

@@ -28,7 +28,7 @@ const Player = ({
   )
 
   const onCurrentTimeChange = useCallback((currentTime: number) => {
-    videoRef.current.currentTime = currentTime
+    if (videoRef.current) videoRef.current.currentTime = currentTime
     setCurrentTime(currentTime)
   }, [])
 
@@ -37,25 +37,25 @@ const Player = ({
   }, [])
 
   const play = useCallback(() => {
-    videoRef.current.play()
+    if (videoRef.current) videoRef.current.play()
     setPlaying(true)
   }, [])
   const pause = useCallback(() => {
-    videoRef.current.pause()
+    if (videoRef.current) videoRef.current.pause()
     setPlaying(false)
   }, [])
   const togglePlaying = useCallback(
     () => (playing ? pause() : play()),
-    [playing]
+    [pause, play, playing]
   )
 
   useEffect(() => {
     if (active) play()
     else {
-      videoRef.current.currentTime = 0
+      if (videoRef.current) videoRef.current.currentTime = 0
       pause()
     }
-  }, [active])
+  }, [active, pause, play])
 
   return (
     <>
@@ -74,7 +74,7 @@ const Player = ({
         )}
         currentTime={currentTime}
         onCurrentTimeChange={onCurrentTimeChange}
-        duration={Math.floor(videoRef.current?.duration) ?? 0}
+        duration={Math.floor(videoRef.current?.duration ?? 0)}
         muted={muted}
         playing={playing}
         toggleMuted={toggleMuted}

@@ -7,6 +7,14 @@ export enum MediaMime {
   VIDEO = 'VIDEO'
 }
 
+export type MediaMetadata = {
+  width: number
+  height: number
+  aspectRatio: number
+  type?: MediaMime
+  duration?: number
+}
+
 export type MediaType = {
   id: MediaId
   src: string
@@ -36,6 +44,14 @@ export type GalleryDto = {
   number_of_images: number
   number_of_videos: number
   number_of_users: number
+}
+
+export type GalleryMetadata = {
+  galleryId: GalleryId
+  galleryName: string
+  numberOfImages: number
+  numberOfVideos: number
+  numberOfUsers: number
 }
 
 export type RowMediaType = {

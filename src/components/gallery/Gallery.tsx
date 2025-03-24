@@ -3,7 +3,7 @@
 import { usePinch } from '@use-gesture/react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import useUserStore from '@/stores/userStore'
-import { useToast } from '@/providers/ToastProvider'
+import { ToastContextType, useToast } from '@/providers/ToastProvider'
 import createClient from '@/utils/supabase/client'
 import Row from './Row'
 import generateImageRows from '@/utils/generateMediaRows'
@@ -24,7 +24,7 @@ const Gallery = () => {
   const galleryRef = useRef(null)
   const [pinching, setPinching] = useState(false)
 
-  const { showToast } = useToast()
+  const { showToast } = useToast() as ToastContextType
   const { zoomLevel, setZoomLevel, keywordId } = useUserStore()
 
   const imageRows = useMemo(
@@ -42,10 +42,13 @@ const Gallery = () => {
 
   useEffect(() => {
     const setImagesWithUserData = async () => {
-      const { data: userLikes } = await supabase
+      const { data: userLikes, error } = await supabase
         .from('media_likes')
         .select('media_id')
         .eq('keyword_id', keywordId)
+
+      if (error) return
+
       for (const { media_id } of userLikes) {
         const image = media.get(media_id)
         if (image) media.set(media_id, { ...image, liked: true })
@@ -53,7 +56,7 @@ const Gallery = () => {
       setMedia(media)
     }
     if (keywordId) setImagesWithUserData()
-  }, [setMedia, keywordId])
+  }, [setMedia, keywordId, media])
 
   usePinch(
     ({ offset: [x], last }) => {

@@ -3,7 +3,6 @@ import App from '@/components/app/App'
 import ActionsProvider from '@/providers/ActionsProvider'
 import AppProvider from '@/providers/AppProvider'
 import GalleryProvider from '@/providers/GalleryProvider'
-import KeywordProvider from '@/providers/KeywordProvider'
 import ToastProvider from '@/providers/ToastProvider'
 
 export default async function Page({
@@ -17,13 +16,11 @@ export default async function Page({
   return (
     <ActionsProvider>
       <ToastProvider>
-        <KeywordProvider>
-          <AppProvider>
-            <GalleryProvider {...gallery}>
-              <App />
-            </GalleryProvider>
-          </AppProvider>
-        </KeywordProvider>
+        <AppProvider>
+          <GalleryProvider {...gallery}>
+            <App />
+          </GalleryProvider>
+        </AppProvider>
       </ToastProvider>
     </ActionsProvider>
   )

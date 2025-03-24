@@ -29,7 +29,7 @@ const getGallery = async ({ galleryId }: Props): Promise<GalleryType> => {
     : {}
 
   const mediaMap: MediaMap = new Map(
-    media.map((file) => [
+    media?.map((file) => [
       file.id,
       {
         id: file.id,

@@ -2,7 +2,7 @@
 
 import { use } from 'react'
 import Row from './Row'
-import { GalleryDto } from '@/types/gallery'
+import { GalleryDto, GalleryMetadata } from '@/types/gallery'
 import { PostgrestError } from '@supabase/supabase-js'
 import cn from '@/utils/cn'
 
@@ -17,7 +17,7 @@ type GalleriesProps = {
 const Galleries = ({ className, galleriesPromise }: GalleriesProps) => {
   const { galleries } = use(galleriesPromise)
 
-  const mapped = galleries.map((gallery) => ({
+  const mapped: GalleryMetadata[] = galleries.map((gallery) => ({
     galleryId: gallery.gallery_id,
     galleryName: gallery.gallery_name,
     numberOfImages: gallery.number_of_images,

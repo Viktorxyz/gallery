@@ -1,4 +1,4 @@
-import { MediaType, RowMediaType, RowType } from '@/types/gallery'
+import { RowMediaType, RowType } from '@/types/gallery'
 import { chunkArray } from './array'
 
 const generateMediaRows = (

@@ -4,7 +4,7 @@ import Thumbnail from './Thumbnail'
 import { MediaMap, MediaType } from '@/types/gallery'
 
 type MiniCarouselProps = {
-  current: MediaType
+  current?: MediaType
   media: MediaMap
   onChange: (id: string) => void
 }
@@ -29,7 +29,7 @@ const Mini = ({ current, media, onChange }: MiniCarouselProps) => {
               src={src}
               mapKey={key}
               aspectRatio={aspectRatio}
-              active={current.id === id}
+              active={current?.id === id}
               onChange={onChange}
               rootRef={rootRef}
               key={index}

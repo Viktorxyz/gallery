@@ -10,7 +10,7 @@ import {
   useState
 } from 'react'
 
-type ActionsContextType = {
+export type ActionsContextType = {
   actions: Actions
   actionsHidden: boolean
   actionsClosed: boolean

@@ -19,11 +19,11 @@ async function getGalleries() {
     number_of_users`)
 
   const galleriesWithCountsObj = convertArrayToObject(
-    galleries_with_counts.data,
+    galleries_with_counts.data ?? [],
     'gallery_id'
   )
 
-  const data = galleries.data.map(({ gallery_id, gallery_name }) => ({
+  const data = galleries?.data?.map(({ gallery_id, gallery_name }) => ({
     gallery_id,
     gallery_name,
     ...galleriesWithCountsObj[gallery_id]

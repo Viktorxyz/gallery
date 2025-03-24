@@ -1,11 +1,11 @@
 import { IconCheck, IconHeartFill } from '@/data/icons'
 import useLongPress from '@/hooks/useLongPress'
 import Spinner from '../Spinner'
-import { useActions } from '@/providers/ActionsProvider'
+import { ActionsContextType, useActions } from '@/providers/ActionsProvider'
 import { useCallback } from 'react'
 import useUserStore from '@/stores/userStore'
 import cn from '@/utils/cn'
-import { useApp } from '@/providers/AppProvider'
+import { AppContextType, useApp } from '@/providers/AppProvider'
 import { useGallery } from '@/providers/GalleryProvider'
 import Image from 'next/image'
 import { MediaMime, RowMediaType } from '@/types/gallery'
@@ -17,19 +17,10 @@ type MediaProps = {
 }
 
 const Media = ({ media, pinching }: MediaProps) => {
-  const {
-    aspectRatio,
-    selected,
-    uploading,
-    liked,
-    type,
-    src,
-    mapKey,
-    duration
-  } = media
-  const { showCarousel } = useApp()
+  const { aspectRatio, selected, uploading, liked, type, src, mapKey } = media
+  const { showCarousel } = useApp() as AppContextType
   const { zoomLevel } = useUserStore()
-  const { actions, setActions } = useActions()
+  const { actions, setActions } = useActions() as ActionsContextType
 
   const toggleSelect = useGallery((state) => state.toggleSelect)
   const gap = (-1 / 2) * zoomLevel + 9 / 2
@@ -37,12 +28,12 @@ const Media = ({ media, pinching }: MediaProps) => {
   const select = useCallback(() => {
     setActions('selecting')
     toggleSelect(mapKey)
-  }, [mapKey])
+  }, [mapKey, setActions, toggleSelect])
 
   const onClick = useCallback(() => {
     if (actions === 'selecting') toggleSelect(mapKey)
     else showCarousel({ scrollTo: mapKey })
-  }, [mapKey])
+  }, [actions, mapKey, showCarousel, toggleSelect])
 
   const ref = useLongPress<HTMLDivElement>(select)
 
