@@ -4,7 +4,7 @@ module.exports = {
       bodySizeLimit: '6mb'
     }
   },
-  webpack(config) {
+  webpack(config: { module: { rules: any[] } }) {
     // Grab the existing rule that handles SVG imports
     const fileLoaderRule = config.module.rules.find((rule) =>
       rule.test?.test?.('.svg')

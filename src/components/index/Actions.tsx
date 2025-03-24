@@ -5,10 +5,15 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Button from '../Button'
 import createClient from '@/utils/supabase/client'
+import cn from '@/utils/cn'
 
 const supabase = createClient()
 
-const Actions = () => {
+type ActionsProps = {
+  className?: string
+}
+
+const Actions = ({ className }: ActionsProps) => {
   const router = useRouter()
   const [user, setUser] = useState(null)
 
@@ -34,7 +39,7 @@ const Actions = () => {
   }, [setUser])
 
   return (
-    <div className="flex items-end fixed p-6 bottom-0 w-full">
+    <div className={cn('flex items-end w-full', className)}>
       {user && <Button onClick={signOut}>Sign Out</Button>}
       <IconButton
         onClick={() => router.push('/dashboard')}

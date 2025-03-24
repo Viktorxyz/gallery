@@ -30,6 +30,14 @@ export type GalleryType = {
   media: MediaMap
 }
 
+export type GalleryDto = {
+  gallery_id: GalleryId
+  gallery_name: string
+  number_of_images: number
+  number_of_videos: number
+  number_of_users: number
+}
+
 export type RowMediaType = {
   mapKey: string
 } & MediaType

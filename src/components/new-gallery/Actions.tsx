@@ -14,7 +14,7 @@ const Actions = ({ className }: ActionsProps) => {
   return (
     <div
       className={cn(
-        'flex h-20 gap-12 items-center justify-between bg-black',
+        'flex h-20 items-center justify-between bg-black',
         className
       )}
     >

@@ -3,10 +3,10 @@ import TopBar from '@/components/TopBar'
 
 const Page = () => {
   return (
-    <div className="flex flex-col mx-6 mt-6">
-      <TopBar title="New gallery" />
-      <Form />
-    </div>
+    <>
+      <TopBar title="New gallery" className="p-6" />
+      <Form className="p-6" />
+    </>
   )
 }
 
