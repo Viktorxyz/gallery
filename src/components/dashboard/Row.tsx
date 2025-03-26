@@ -1,3 +1,5 @@
+'use client'
+
 import { IconOptions } from '@/data/icons'
 import { MouseEvent, useCallback, useState } from 'react'
 import Link from 'next/link'

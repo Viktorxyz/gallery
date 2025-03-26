@@ -1,21 +1,14 @@
-'use client'
-
-import { use } from 'react'
+import getGalleries from '@/actions/getGalleries'
 import Row from './Row'
-import { GalleryDto, GalleryMetadata } from '@/types/gallery'
-import { PostgrestError } from '@supabase/supabase-js'
+import { GalleryMetadata } from '@/types/gallery'
 import cn from '@/utils/cn'
 
 type GalleriesProps = {
-  galleriesPromise: Promise<{
-    galleries: GalleryDto[]
-    error: PostgrestError | null
-  }>
   className?: string
 }
 
-const Galleries = ({ className, galleriesPromise }: GalleriesProps) => {
-  const { galleries } = use(galleriesPromise)
+async function Galleries({ className }: GalleriesProps) {
+  const { galleries } = await getGalleries()
 
   const mapped: GalleryMetadata[] = galleries.map((gallery) => ({
     galleryId: gallery.gallery_id,

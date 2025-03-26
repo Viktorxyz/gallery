@@ -21,11 +21,7 @@ function Page() {
             type="password"
           />
         </div>
-        <IconButton
-          type="submit"
-          className="w-max text-black px-5 gap-2 self-end"
-          icon="IconCheck"
-        />
+        <IconButton type="submit" className="self-end" icon="IconCheck" />
       </form>
     </>
   )
