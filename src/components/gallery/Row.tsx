@@ -6,15 +6,15 @@ const Row = ({ pinching, aspectRatio, media }: RowProps) => {
   return (
     <div
       className={cn(
-        'flex overflow-hidden transition-all duration-300',
-        pinching && 'transition-none'
+        'flex overflow-hidden transition-[aspect-ratio] duration-[3000ms]'
+        // pinching && 'transition-none'
       )}
       style={{
         aspectRatio
       }}
     >
-      {media.map((media, i) => (
-        <Media media={media} pinching={pinching} key={i} />
+      {media.map((media, index) => (
+        <Media media={media} pinching={pinching} key={index} />
       ))}
     </div>
   )

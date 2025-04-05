@@ -1,8 +1,8 @@
 import getGallery from '@/actions/getGallery'
-import App from '@/components/app/App'
+import Actions from '@/components/gallery/Actions'
+import Gallery from '@/components/gallery/Gallery'
+import Header from '@/components/gallery/Header'
 import ActionsProvider from '@/providers/ActionsProvider'
-import AppProvider from '@/providers/AppProvider'
-import GalleryProvider from '@/providers/GalleryProvider'
 import ToastProvider from '@/providers/ToastProvider'
 
 export default async function Page({
@@ -11,17 +11,26 @@ export default async function Page({
   params: Promise<{ galleryId: string }>
 }) {
   const { galleryId } = await params
-  const gallery = await getGallery({ galleryId })
+  const { galleryName, numberOfImages, numberOfVideos } = await getGallery({
+    galleryId
+  })
 
   return (
-    <ActionsProvider>
-      <ToastProvider>
-        <AppProvider>
-          <GalleryProvider {...gallery}>
-            <App />
-          </GalleryProvider>
-        </AppProvider>
-      </ToastProvider>
-    </ActionsProvider>
+    <ToastProvider>
+      <ActionsProvider>
+        <Header
+          text={galleryName}
+          numberOfImages={numberOfImages}
+          numberOfVideos={numberOfVideos}
+        />
+        <Actions
+          galleryId={galleryId}
+          text={galleryName}
+          numberOfPhotos={numberOfImages}
+          numberOfVideos={numberOfVideos}
+        />
+        <Gallery />
+      </ActionsProvider>
+    </ToastProvider>
   )
 }

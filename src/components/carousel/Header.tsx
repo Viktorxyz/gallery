@@ -2,7 +2,7 @@ import cn from '@/utils/cn'
 import React from 'react'
 
 type HeaderProps = {
-  text: string
+  text?: string
   className?: string
 }
 

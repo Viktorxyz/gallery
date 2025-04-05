@@ -1,5 +1,3 @@
-import React from 'react'
-
 function GalleriesSkeleton() {
   return (
     <div className="flex flex-col gap-8 animate-pulse">

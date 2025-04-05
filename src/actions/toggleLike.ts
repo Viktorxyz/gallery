@@ -2,7 +2,12 @@
 
 import createClient from '@/utils/supabase/server'
 
-const toggleLike = async (mediaId: string, keywordId: string) => {
+export type ToggleLikeProps = {
+  mediaId: string
+  keywordId: string
+}
+
+const toggleLike = async ({ mediaId, keywordId }: ToggleLikeProps) => {
   const supabase = await createClient()
 
   const { data: like, error: mediaLikesError } = await supabase
@@ -11,7 +16,7 @@ const toggleLike = async (mediaId: string, keywordId: string) => {
     .eq('media_id', mediaId)
     .eq('keyword_id', keywordId)
 
-  if (mediaLikesError) return { error: mediaLikesError }
+  if (mediaLikesError) throw mediaLikesError
 
   const action = like.length > 0 // true=-1 false=+1
 
@@ -32,7 +37,7 @@ const toggleLike = async (mediaId: string, keywordId: string) => {
     .select('likes_count')
     .eq('media_id', mediaId)
 
-  if (mediaMetadataError) return { error: mediaMetadataError }
+  if (mediaMetadataError) throw mediaMetadataError
 
   const likes_count = data[0].likes_count
 

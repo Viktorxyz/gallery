@@ -1,45 +1,47 @@
 'use client'
 
 import { IconPlus, IconQRCode } from '@/data/icons'
-import React, {
-  ChangeEvent,
-  useCallback,
-  useEffect,
-  useRef,
-  useState
-} from 'react'
+import { ChangeEvent, useCallback, useEffect, useRef, useState } from 'react'
 import Keyword from '../Keyword'
 import { ActionsContextType, useActions } from '@/providers/ActionsProvider'
 import createKeyword from '@/actions/createKeyword'
 import QRCode from '../QRCode'
 import useUserStore from '@/stores/userStore'
-import uploadFile from '@/actions/uploadFile'
 import { v4 as uuidv4 } from 'uuid'
 import imageSize from 'image-size'
 import useOnStuck from '@/hooks/useOnStuck'
 import cn from '@/utils/cn'
 import useWindowScroll from '@/hooks/useWindowScroll'
-import {
-  GalleryId,
-  MediaMap,
-  MediaMetadata,
-  MediaMime,
-  MediaType
-} from '@/types/gallery'
-import { useGallery } from '@/providers/GalleryProvider'
+import { MediaMime, MediaType } from '@/types/gallery'
 import getVideoDimensionsClient from '@/utils/getVideoDimensionsClient'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import uploadMedia, { UploadMediaProps } from '@/actions/uploadMedia'
 
 type ActionsProps = {
   text: string
   numberOfPhotos: number
   numberOfVideos: number
+  galleryId: string
 }
 
-const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
-  const setSingleMedia = useGallery((state) => state.setSingleMedia)
-  const addMedia = useGallery((state) => state.addMedia)
-  const galleryId = useGallery((state) => state.galleryId)
+type Dimensions = {
+  width: number
+  height: number
+  duration?: number
+}
 
+const getImageDimensions = async (file: File) => {
+  const arrayBuffer = await file.arrayBuffer()
+  const uint8Array = new Uint8Array(arrayBuffer)
+  return imageSize(uint8Array)
+}
+
+const Actions = ({
+  text,
+  numberOfPhotos,
+  numberOfVideos,
+  galleryId
+}: ActionsProps) => {
   const headerRef = useRef<HTMLDivElement>(null)
   const [headerHidden, setHeaderHidden] = useState(true)
   const [headerClosed, setHeaderClosed] = useState(false)
@@ -48,7 +50,70 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
   const { keyword, keywordId, setKeyword } = useUserStore()
   const { hideActions, showActions } = useActions() as ActionsContextType
   const { y } = useWindowScroll()
-  const [prevY, setPrevY] = useState(y)
+  const prevY = useRef(y)
+
+  const queryClient = useQueryClient()
+  const uploadMediaMutation = useMutation<
+    { mediaId: string },
+    Error,
+    UploadMediaProps & { tempMediaId: string },
+    MediaType[]
+  >({
+    mutationFn: ({ file, galleryId, keywordId }) =>
+      uploadMedia({ file, galleryId, keywordId }),
+    onMutate: async ({ file, galleryId, keywordId, tempMediaId }) => {
+      if (!keywordId || !keyword) return
+
+      await queryClient.cancelQueries({ queryKey: ['media'] })
+
+      const previousMedia = queryClient.getQueryData<MediaType[]>(['media'])
+
+      const type = file.type.startsWith('image')
+        ? MediaMime.IMAGE
+        : MediaMime.VIDEO
+      const dimensions: Dimensions =
+        type === MediaMime.IMAGE
+          ? await getImageDimensions(file)
+          : await getVideoDimensionsClient(file)
+
+      const newMedia: MediaType = {
+        mediaId: tempMediaId,
+        keywordId,
+        galleryId,
+        src: URL.createObjectURL(file),
+        uploading: true,
+        selected: false,
+        likesCount: 0,
+        liked: false,
+        keyword,
+        aspectRatio: dimensions.width / dimensions.height,
+        width: dimensions.width,
+        height: dimensions.height,
+        duration: dimensions.duration,
+        createdAt: Date.now(),
+        type
+      }
+
+      queryClient.setQueryData(['media'], (prev: MediaType[]) => [
+        newMedia,
+        ...prev
+      ])
+
+      return previousMedia
+    },
+    onSuccess: ({ mediaId }, newMedia) => {
+      queryClient.setQueryData(['media'], (prev: MediaType[]) =>
+        prev.map((m) =>
+          m.mediaId === newMedia.tempMediaId
+            ? { ...m, mediaId, uploading: false }
+            : m
+        )
+      )
+    },
+    onError: (error, payload, context) => {
+      queryClient.setQueryData(['media'], context)
+    }
+  })
 
   // qrcode
   const [qrcodeHidden, setQRCodeHidden] = useState(true)
@@ -68,75 +133,14 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
     [setKeywordFormHidden]
   )
 
-  const uploadMedia = async (e: ChangeEvent<HTMLInputElement>) => {
+  const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (!keywordId) return
 
     if (e.target.files) {
       const files = Array.from(e.target.files)
-
-      const filesWithTempKey = files.map((file) => ({ key: uuidv4(), file }))
-
-      const mediaPromise = filesWithTempKey.map(async ({ key, file }) => {
-        const metadata: MediaMetadata = {
-          width: 0,
-          height: 0,
-          aspectRatio: 0,
-          duration: undefined,
-          type: undefined
-        }
-        if (file.type.startsWith('image')) {
-          const arrayBuffer = await file.arrayBuffer()
-          const uint8Array = new Uint8Array(arrayBuffer)
-          const { width, height } = imageSize(uint8Array)
-          metadata.width = width
-          metadata.height = height
-          metadata.aspectRatio = width / height
-          metadata.type = MediaMime.IMAGE
-        } else if (file.type.startsWith('video')) {
-          const { width, height, duration } = await getVideoDimensionsClient(
-            file
-          )
-          metadata.width = width
-          metadata.height = height
-          metadata.aspectRatio = width / height
-          metadata.duration = duration
-          metadata.type = MediaMime.VIDEO
-        }
-
-        return [
-          key,
-          {
-            id: key,
-            src: URL.createObjectURL(file),
-            uploading: true,
-            selected: false,
-            liked: false,
-            likes: 0,
-            keyword,
-            width: metadata.width,
-            height: metadata.height,
-            duration: metadata.duration,
-            type: metadata.type,
-            aspectRatio: metadata.aspectRatio
-          }
-        ] as [string, MediaType]
-      })
-
-      const mediaArray = await Promise.all(mediaPromise)
-
-      const mediaMap: MediaMap = new Map<GalleryId, MediaType>(mediaArray)
-
-      addMedia(mediaMap)
-
-      for (const { key, file } of filesWithTempKey) {
-        const onUploaded = async () => {
-          const { id } = await uploadFile(keywordId, galleryId, file)
-          setSingleMedia(key, {
-            id,
-            uploading: false
-          })
-        }
-        onUploaded()
+      for (const file of files) {
+        const tempMediaId = uuidv4()
+        uploadMediaMutation.mutate({ file, galleryId, keywordId, tempMediaId })
       }
     }
   }
@@ -197,9 +201,9 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
   useOnStuck(showHeader, hideHeader, { target: headerRef })
 
   useEffect(() => {
-    if (y > prevY && !headerHidden) setHeaderClosed(true)
+    if (y > prevY.current && !headerHidden) setHeaderClosed(true)
     else setHeaderClosed(false)
-    setPrevY(y)
+    prevY.current = y
   }, [headerHidden, prevY, y])
 
   return (
@@ -228,7 +232,7 @@ const Actions = ({ text, numberOfPhotos, numberOfVideos }: ActionsProps) => {
             <IconPlus className="icon-action scale-110" />
             {keywordId ? (
               <input
-                onChange={uploadMedia}
+                onChange={onFileChange}
                 className="hidden"
                 type="file"
                 accept="image/*,video/*"

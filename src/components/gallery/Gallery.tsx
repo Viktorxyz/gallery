@@ -1,15 +1,18 @@
 'use client'
 
 import { usePinch } from '@use-gesture/react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import useUserStore from '@/stores/userStore'
-import { ToastContextType, useToast } from '@/providers/ToastProvider'
+import { useToast } from '@/providers/ToastProvider'
 import createClient from '@/utils/supabase/client'
-import Row from './Row'
 import generateImageRows from '@/utils/generateMediaRows'
-import Header from './Header'
-import Actions from './Actions'
-import { useGallery } from '@/providers/GalleryProvider'
+import { useMedia } from '@/providers/MediaProvider'
+import Loading from '../index/Loading'
+import Row from './Row'
+import VirtualizedList, {
+  Direction,
+  VirtualizedListItem
+} from '../VirtualizedList'
 
 const MAX_ZOOM_LEVEL = 7
 const MIN_ZOOM_LEVEL = 1
@@ -17,46 +20,22 @@ const MIN_ZOOM_LEVEL = 1
 const supabase = createClient()
 
 const Gallery = () => {
-  const media = useGallery((state) => state.media)
-  const setMedia = useGallery((state) => state.setMedia)
-  const galleryName = useGallery((state) => state.galleryName)
+  const { media, isLoading } = useMedia()
 
   const galleryRef = useRef(null)
   const [pinching, setPinching] = useState(false)
 
-  const { showToast } = useToast() as ToastContextType
+  const { showToast } = useToast()
   const { zoomLevel, setZoomLevel, keywordId } = useUserStore()
 
-  const imageRows = useMemo(
-    // this is not being updated when media is changed!!!
-    () =>
-      generateImageRows(
-        Array.from(media).map(([mapKey, value]) => ({
-          mapKey,
-          ...value
-        })),
-        zoomLevel
-      ),
-    [media, zoomLevel]
+  const rowMedia = useMemo(
+    () => (media ? media.map((m, index) => ({ index, ...m })) : []),
+    [media]
   )
-
-  useEffect(() => {
-    const setImagesWithUserData = async () => {
-      const { data: userLikes, error } = await supabase
-        .from('media_likes')
-        .select('media_id')
-        .eq('keyword_id', keywordId)
-
-      if (error) return
-
-      for (const { media_id } of userLikes) {
-        const image = media.get(media_id)
-        if (image) media.set(media_id, { ...image, liked: true })
-      }
-      setMedia(media)
-    }
-    if (keywordId) setImagesWithUserData()
-  }, [setMedia, keywordId, media])
+  const imageRows = useMemo(
+    () => generateImageRows(rowMedia, zoomLevel),
+    [rowMedia, zoomLevel]
+  )
 
   usePinch(
     ({ offset: [x], last }) => {
@@ -80,13 +59,13 @@ const Gallery = () => {
   useEffect(() => {
     // new image uploaded notification
     supabase
-      .channel('media')
+      .channel('media_metadata')
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'media'
+          table: 'media_metadata'
         },
         (payload) => {
           if (payload.new.keyword_id !== keywordId) showToast()
@@ -95,26 +74,46 @@ const Gallery = () => {
       .subscribe()
   }, [keywordId, showToast])
 
+  const Item = memo<VirtualizedListItem>(function Item({ index }) {
+    const { media, aspectRatio } = imageRows[index]
+
+    return <Row media={media} aspectRatio={aspectRatio} pinching={pinching} />
+  })
+
+  const getItemSize = useCallback(
+    (index: number) => {
+      return 360 / imageRows[index].aspectRatio
+    },
+    [imageRows]
+  )
+
   return (
-    <>
-      <Header text={galleryName} />
-      <Actions text={galleryName} numberOfPhotos={0} numberOfVideos={0} />
-      <div
-        className="min-h-screen bg-black text-white break-inside-avoid touch-pan-y"
-        ref={galleryRef}
-      >
-        <div className="flex flex-col">
-          {imageRows.map(({ aspectRatio, media }, index) => (
-            <Row
-              pinching={pinching}
-              aspectRatio={aspectRatio}
-              media={media}
-              key={index}
-            />
-          ))}
-        </div>
-      </div>
-    </>
+    <div
+      className="flex min-h-screen bg-black text-white break-inside-avoid touch-pan-y"
+      ref={galleryRef}
+    >
+      {isLoading ? (
+        <Loading />
+      ) : (
+        // <div className="flex-1 flex flex-col">
+        //   {imageRows.map(({ media, aspectRatio }, index) => (
+        //     <Row
+        //       media={media}
+        //       aspectRatio={aspectRatio}
+        //       pinching={pinching}
+        //       key={index}
+        //     />
+        //   ))}
+        // </div>
+        <VirtualizedList
+          Item={Item}
+          overscan={2}
+          length={imageRows.length}
+          getItemSize={getItemSize}
+          direction={Direction.VERTICAL}
+        />
+      )}
+    </div>
   )
 }
 

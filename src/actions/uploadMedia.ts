@@ -1,11 +1,21 @@
 'use server'
-import { MediaMetadata, MediaMime } from '@/types/gallery'
+import { GalleryId, KeywordId, MediaMetadata, MediaMime } from '@/types/gallery'
 import getVideoDimensionsServer from '@/utils/getVideoDimensionsServer'
 import createClient from '@/utils/supabase/server'
 import { imageSize } from 'image-size'
 import { v4 as uuidv4 } from 'uuid'
 
-const uploadFile = async (keywordId: string, galleryId: string, file: File) => {
+export type UploadMediaProps = {
+  keywordId: KeywordId
+  galleryId: GalleryId
+  file: File
+}
+
+const uploadMedia = async ({
+  keywordId,
+  galleryId,
+  file
+}: UploadMediaProps) => {
   const supabase = await createClient()
 
   const fileName = file.name
@@ -18,17 +28,11 @@ const uploadFile = async (keywordId: string, galleryId: string, file: File) => {
     .from('galleries')
     .upload(path, file)
 
-  if (error) return { error }
+  if (error) throw error
 
-  const id = data.id
+  const mediaId = data.id
 
-  const metadata: MediaMetadata = {
-    width: 0,
-    height: 0,
-    aspectRatio: 0,
-    type: undefined,
-    duration: undefined
-  }
+  const metadata: Partial<MediaMetadata> = {}
   if (file.type.startsWith('image')) {
     const arrayBuffer = await file.arrayBuffer()
     const uint8Array = new Uint8Array(arrayBuffer)
@@ -49,7 +53,7 @@ const uploadFile = async (keywordId: string, galleryId: string, file: File) => {
   await supabase
     .from('media_metadata')
     .insert({
-      media_id: id,
+      media_id: mediaId,
       gallery_id: galleryId,
       keyword_id: keywordId,
       width: metadata.width,
@@ -60,7 +64,7 @@ const uploadFile = async (keywordId: string, galleryId: string, file: File) => {
     })
     .select('media_id')
 
-  return { id }
+  return { mediaId }
 }
 
-export default uploadFile
+export default uploadMedia

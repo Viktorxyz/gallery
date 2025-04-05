@@ -2,51 +2,26 @@
 
 import IconButton from '../IconButton'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
 import Button from '../Button'
-import createClient from '@/utils/supabase/client'
 import cn from '@/utils/cn'
 import { User } from '@supabase/supabase-js'
 
-const supabase = createClient()
-
 type ActionsProps = {
+  user?: User
+  signOut: () => void
   className?: string
 }
 
-const Actions = ({ className }: ActionsProps) => {
+function Actions({ user, signOut, className }: ActionsProps) {
   const router = useRouter()
-  const [user, setUser] = useState<User>()
-
-  const signOut = async () => await supabase.auth.signOut()
-
-  useEffect(() => {
-    const getUser = async () => {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser()
-
-      if (user) setUser(user)
-    }
-
-    const {
-      data: { subscription }
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) setUser(session.user)
-    })
-
-    getUser()
-
-    return () => subscription.unsubscribe()
-  }, [setUser])
 
   return (
-    <div className={cn('flex items-end w-full', className)}>
+    <div className={cn('flex justify-between w-full', className)}>
       {user && <Button onClick={signOut}>Sign Out</Button>}
+      <div></div>
       <IconButton
         onClick={() => router.push('/dashboard')}
         icon="IconArrowRight"
-        className="ml-auto"
       />
     </div>
   )

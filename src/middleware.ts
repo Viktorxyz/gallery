@@ -1,18 +1,10 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import createClient from './utils/supabase/server'
+import { type NextRequest } from 'next/server'
+import { updateSession } from './utils/supabase/middleware'
 
 export async function middleware(req: NextRequest) {
-  const supabase = await createClient()
-
-  const {
-    data: { user }
-  } = await supabase.auth.getUser()
-
-  if (req.nextUrl.pathname.startsWith('/dashboard') && !user) {
-    NextResponse.redirect(new URL('/sign-in', req.url))
-  }
+  return await updateSession(req)
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*']
+  matcher: ['/dashboard', '/dashboard/new-gallery', '/sign-in']
 }

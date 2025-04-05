@@ -14,7 +14,9 @@ const getGalleryKeywords = async ({ galleryId }: Props) => {
     .select('keyword_id,keyword')
     .eq('gallery_id', galleryId)
 
-  return { keywords: data, error }
+  if (error) throw error
+
+  return data
 }
 
 export default getGalleryKeywords

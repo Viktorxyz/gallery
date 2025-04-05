@@ -1,39 +1,44 @@
+'use client'
+
 import { IconCheck, IconHeartFill } from '@/data/icons'
 import useLongPress from '@/hooks/useLongPress'
 import Spinner from '../Spinner'
-import { ActionsContextType, useActions } from '@/providers/ActionsProvider'
+import { useActions } from '@/providers/ActionsProvider'
 import { useCallback } from 'react'
 import useUserStore from '@/stores/userStore'
 import cn from '@/utils/cn'
-import { AppContextType, useApp } from '@/providers/AppProvider'
-import { useGallery } from '@/providers/GalleryProvider'
 import Image from 'next/image'
-import { MediaMime, RowMediaType } from '@/types/gallery'
+import { MediaMime, MediaType } from '@/types/gallery'
 import VideoBadge from './VideoBadge'
+import { useRouter, usePathname } from 'next/navigation'
 
 type MediaProps = {
-  media: RowMediaType
+  media: MediaType
   pinching: boolean
 }
 
 const Media = ({ media, pinching }: MediaProps) => {
-  const { aspectRatio, selected, uploading, liked, type, src, mapKey } = media
-  const { showCarousel } = useApp() as AppContextType
+  const router = useRouter()
+  const pathname = usePathname()
+  const { aspectRatio, selected, uploading, liked, type, src } = media
   const { zoomLevel } = useUserStore()
-  const { actions, setActions } = useActions() as ActionsContextType
+  const { actions, setActions } = useActions()
 
-  const toggleSelect = useGallery((state) => state.toggleSelect)
   const gap = (-1 / 2) * zoomLevel + 9 / 2
 
   const select = useCallback(() => {
     setActions('selecting')
-    toggleSelect(mapKey)
-  }, [mapKey, setActions, toggleSelect])
+  }, [setActions])
 
   const onClick = useCallback(() => {
-    if (actions === 'selecting') toggleSelect(mapKey)
-    else showCarousel({ scrollTo: mapKey })
-  }, [actions, mapKey, showCarousel, toggleSelect])
+    if (actions === 'selecting') console.log('select')
+    else {
+      const searchParams = new URLSearchParams({ i: media.mediaId })
+      router.push(pathname + '/carousel?' + searchParams.toString(), {
+        scroll: false
+      })
+    }
+  }, [actions, media.mediaId, pathname, router])
 
   const ref = useLongPress<HTMLDivElement>(select)
 
@@ -41,14 +46,16 @@ const Media = ({ media, pinching }: MediaProps) => {
     <div
       ref={ref}
       className={cn(
-        'grid relative p-2',
-        !pinching && 'transition-[aspect-ratio] duration-300'
+        'grid relative p-2 transition-[aspect-ratio] duration-300',
+        pinching && 'transition-none'
+        // 'border-[1px] border-green-400'
       )}
       style={{
         aspectRatio
       }}
       onClick={onClick}
     >
+      {/* <div className="absolute top-0 left-0 w-full h-full bg-blue-950"></div> */}
       {selected ? (
         <div className="flex justify-end items-end absolute inset-0 bg-black/75">
           <IconCheck className="m-6 size-6 icon-action" />
@@ -78,7 +85,6 @@ const Media = ({ media, pinching }: MediaProps) => {
             className="object-cover"
             style={{ padding: `${gap}px` }}
             src={src}
-            autoPlay
             muted
           />
           <VideoBadge margin={gap} />
