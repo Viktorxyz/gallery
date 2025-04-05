@@ -1,22 +1,15 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import VideoControls from './VideoControls'
 import cn from '@/utils/cn'
+import { useCarousel } from '@/providers/CarouselProvider'
 
 type PlayerProps = {
   src: string
-  muted: boolean
-  toggleMuted: () => void
-  active: boolean
-  actionsHidden: boolean
+  defaultPlay?: boolean
 }
 
-const Player = ({
-  src,
-  muted,
-  toggleMuted,
-  active,
-  actionsHidden
-}: PlayerProps) => {
+const Player = ({ src, defaultPlay }: PlayerProps) => {
+  const { muted, actions, toggleMuted } = useCarousel()
   const videoRef = useRef<HTMLVideoElement>(null)
   const [playing, setPlaying] = useState<boolean>(false)
   const [currentTime, setCurrentTime] = useState<number>(0)
@@ -50,12 +43,12 @@ const Player = ({
   )
 
   useEffect(() => {
-    if (active) play()
+    if (defaultPlay) play()
     else {
       if (videoRef.current) videoRef.current.currentTime = 0
       pause()
     }
-  }, [active, pause, play])
+  }, [defaultPlay, pause, play])
 
   return (
     <>
@@ -70,11 +63,11 @@ const Player = ({
       <VideoControls
         className={cn(
           'transition-opacity duration-100 ease-linear absolute bottom-[132px] w-full',
-          actionsHidden && 'pointer-events-none opacity-0'
+          actions && 'pointer-events-none opacity-0'
         )}
         currentTime={currentTime}
         onCurrentTimeChange={onCurrentTimeChange}
-        duration={Math.floor(videoRef.current?.duration ?? 0)}
+        duration={Math.floor(videoRef.current?.duration ?? 1)}
         muted={muted}
         playing={playing}
         toggleMuted={toggleMuted}

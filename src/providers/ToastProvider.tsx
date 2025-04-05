@@ -41,6 +41,6 @@ const ToastProvider = ({ children }: ToastProviderProps) => {
   )
 }
 
-export const useToast = () => useContext(ToastContext)
+export const useToast = () => useContext(ToastContext) as ToastContextType
 
 export default ToastProvider

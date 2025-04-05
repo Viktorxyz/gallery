@@ -68,6 +68,6 @@ const ActionsProvider = ({ children }: ActionsProviderProps) => {
   return <ActionsContext value={value}>{children}</ActionsContext>
 }
 
-export const useActions = () => useContext(ActionsContext)
+export const useActions = () => useContext(ActionsContext) as ActionsContextType
 
 export default ActionsProvider

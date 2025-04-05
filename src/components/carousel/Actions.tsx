@@ -1,4 +1,4 @@
-import toggleLikeAction from '@/actions/toggleLike'
+import toggleLike, { ToggleLikeProps } from '@/actions/toggleLike'
 import {
   IconDownload,
   IconHeartFill,
@@ -6,43 +6,59 @@ import {
   IconLeft,
   IconShare
 } from '@/data/icons'
-import { AppContextType, useApp } from '@/providers/AppProvider'
-import { useGallery } from '@/providers/GalleryProvider'
 import useUserStore from '@/stores/userStore'
 import { MediaType } from '@/types/gallery'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { saveAs } from 'file-saver'
-import React from 'react'
+import { useRouter } from 'next/navigation'
 
 type ActionsProps = {
-  current?: MediaType
+  current: MediaType
 }
 
 const Actions = ({ current }: ActionsProps) => {
-  const { showGallery } = useApp() as AppContextType
-  const toggleLike = useGallery((state) => state.toggleLike)
+  const router = useRouter()
   const keywordId = useUserStore((state) => state.keywordId)
 
-  const back = () => showGallery()
+  const queryClient = useQueryClient()
+  const likeMutation = useMutation<void, Error, ToggleLikeProps, MediaType[]>({
+    mutationFn: (payload) => toggleLike(payload),
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({ queryKey: ['media'] })
+
+      const previousMedia = queryClient.getQueryData(['media']) as MediaType[]
+
+      queryClient.setQueryData(['media'], (prev: MediaType[]) => {
+        const index = prev.findIndex((m) => m.mediaId === payload.mediaId)
+        prev[index].liked = !prev[index].liked
+      })
+
+      return previousMedia
+    },
+    onError: (error, payload, context) => {
+      queryClient.setQueryData(['media'], context)
+    }
+  })
 
   const like = () => {
-    if (!current || !keywordId) return
-
-    toggleLikeAction(current.id, keywordId)
-    toggleLike(current.id)
+    if (!keywordId) return
+    likeMutation.mutate({ mediaId: current.mediaId, keywordId })
   }
 
   const copyPublicLinkToClipboard = () => {
-    if (current) navigator.share({ url: current.src })
+    navigator.share({ url: current.src })
   }
 
   const downloadMedia = () => {
-    if (current) saveAs(current.src, `${current.id}.jpg`)
+    saveAs(current.src, `${current.mediaId}.jpg`)
   }
+
+  const back = () => router.back()
 
   return (
     <div className="w-full flex justify-between p-6">
       <IconLeft onClick={back} className="fill-white" />
-      {current?.liked ? (
+      {current.liked ? (
         <IconHeartFill onClick={like} className="fill-rose-600" />
       ) : (
         <IconHeartOutlined onClick={like} className="fill-white" />

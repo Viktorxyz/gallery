@@ -12,7 +12,7 @@ const generateMediaRows = (
   if (zoomLevel >= 2)
     return chunkArray(media, rounded).map((media) => ({
       aspectRatio: zoomLevel,
-      media: media.map((image) => ({ ...image, aspectRatio: 1 }))
+      media: media.map((m) => ({ ...m, aspectRatio: 1 }))
     }))
 
   for (const image of media) {
