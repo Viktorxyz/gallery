@@ -10,7 +10,7 @@ import useUserStore from '@/stores/userStore'
 import { MediaType } from '@/types/gallery'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { saveAs } from 'file-saver'
-import { useRouter } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 
 type ActionsProps = {
   current: MediaType
@@ -18,6 +18,8 @@ type ActionsProps = {
 
 const Actions = ({ current }: ActionsProps) => {
   const router = useRouter()
+  const { galleryId } = useParams<{ galleryId: string }>()
+
   const keywordId = useUserStore((state) => state.keywordId)
 
   const queryClient = useQueryClient()
@@ -53,7 +55,7 @@ const Actions = ({ current }: ActionsProps) => {
     saveAs(current.src, `${current.mediaId}.jpg`)
   }
 
-  const back = () => router.back()
+  const back = () => router.push(`/${galleryId}`, { scroll: false })
 
   return (
     <div className="w-full flex justify-between p-6">

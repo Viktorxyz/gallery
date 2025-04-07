@@ -208,10 +208,10 @@ const Actions = ({
 
   return (
     <>
-      <header
+      <div
         ref={headerRef}
         className={cn(
-          'transition-[translate] duration-300 z-50 flex items-center justify-between sticky -top-px bg-black px-6 py-4',
+          'opacity-0 transition-[translate] duration-300 z-50 flex items-center justify-between sticky -top-px bg-black px-6 py-4',
           headerClosed && '-translate-y-full'
         )}
       >
@@ -243,7 +243,7 @@ const Actions = ({
             )}
           </label>
         </div>
-      </header>
+      </div>
       {!qrcodeHidden && <QRCode onClickAway={hideQRCode} />}
       {!keywordFormHidden && (
         <Keyword

@@ -1,11 +1,12 @@
 import { MediaType } from '@/types/gallery'
-import VirtualizedList, {
-  VirtualizedListItem,
-  VirtualizedListRef
-} from '../VirtualizedList'
+import VirtualizedList from '../VirtualizedList/VirtualizedList'
 import { useMedia } from '@/providers/MediaProvider'
 import Thumbnail from './Thumbnail'
 import { memo, RefObject, useCallback } from 'react'
+import {
+  VirtualizedListItem,
+  VirtualizedListRef
+} from '../VirtualizedList/types'
 
 const carouselHeight = 48
 
@@ -13,7 +14,7 @@ type MiniCarouselProps = {
   media: MediaType[]
   initialIndex?: number
   onIndexChange: (index: number) => void
-  ref: RefObject<VirtualizedListRef>
+  listRef: RefObject<VirtualizedListRef>
 }
 
 const Item = memo<VirtualizedListItem>(function Item({
@@ -28,7 +29,6 @@ const Item = memo<VirtualizedListItem>(function Item({
 
   const onClick = () => {
     if (!virtualizedListRef?.current) return
-    console.log('onClick', index)
     virtualizedListRef.current.scrollToItem(index, {
       align: 'center',
       behaviour: 'smooth',
@@ -49,7 +49,7 @@ function MiniCarousel({
   media,
   initialIndex,
   onIndexChange,
-  ref
+  listRef
 }: MiniCarouselProps) {
   const getItemSize = useCallback(
     (index: number) => {
@@ -61,7 +61,9 @@ function MiniCarousel({
 
   return (
     <VirtualizedList
-      ref={ref}
+      debugName="MINI"
+      align="center"
+      listRef={listRef}
       Item={Item}
       length={media.length}
       getItemSize={getItemSize}
@@ -70,7 +72,7 @@ function MiniCarousel({
       overscan={10}
       gap={4}
       scrollOffset={getItemSize(0) / 2}
-      className="mt-1 scrollbar-hidden snap-x snap-mandatory"
+      className="scrollbar-hidden snap-x snap-mandatory"
       style={{
         height: carouselHeight,
         paddingLeft: `calc(50% - ${getItemSize(0) / 2}px)`,
