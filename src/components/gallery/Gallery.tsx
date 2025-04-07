@@ -9,10 +9,9 @@ import generateImageRows from '@/utils/generateMediaRows'
 import { useMedia } from '@/providers/MediaProvider'
 import Loading from '../index/Loading'
 import Row from './Row'
-import VirtualizedList, {
-  Direction,
-  VirtualizedListItem
-} from '../VirtualizedList'
+import { VirtualizedListItem } from '../VirtualizedList/types'
+import VirtualizedList from '../VirtualizedList/VirtualizedList'
+import useWindowSize from '@/hooks/useWindowSize'
 
 const MAX_ZOOM_LEVEL = 7
 const MIN_ZOOM_LEVEL = 1
@@ -21,8 +20,11 @@ const supabase = createClient()
 
 const Gallery = () => {
   const { media, isLoading } = useMedia()
+  const { height } = useWindowSize()
 
-  const galleryRef = useRef(null)
+  const scrollOffset = useMemo(() => -(76 + height * 0.25), [height])
+
+  const ref = useRef(null)
   const [pinching, setPinching] = useState(false)
 
   const { showToast } = useToast()
@@ -46,7 +48,7 @@ const Gallery = () => {
       else setZoomLevel({ zoomLevel: zoomLevel })
     },
     {
-      target: galleryRef,
+      target: ref,
       rubberband: 0,
       from: ({ offset: [x] }) => [Math.round(x), 0],
       scaleBounds: {
@@ -87,33 +89,18 @@ const Gallery = () => {
     [imageRows]
   )
 
+  if (isLoading) return <Loading />
+
   return (
-    <div
-      className="flex min-h-screen bg-black text-white break-inside-avoid touch-pan-y"
-      ref={galleryRef}
-    >
-      {isLoading ? (
-        <Loading />
-      ) : (
-        // <div className="flex-1 flex flex-col">
-        //   {imageRows.map(({ media, aspectRatio }, index) => (
-        //     <Row
-        //       media={media}
-        //       aspectRatio={aspectRatio}
-        //       pinching={pinching}
-        //       key={index}
-        //     />
-        //   ))}
-        // </div>
-        <VirtualizedList
-          Item={Item}
-          overscan={2}
-          length={imageRows.length}
-          getItemSize={getItemSize}
-          direction={Direction.VERTICAL}
-        />
-      )}
-    </div>
+    <VirtualizedList
+      ref={ref}
+      className="bg-black text-white break-inside-avoid touch-pan-y"
+      Item={Item}
+      overscan={4}
+      length={imageRows.length}
+      getItemSize={getItemSize}
+      scrollOffset={scrollOffset}
+    />
   )
 }
 

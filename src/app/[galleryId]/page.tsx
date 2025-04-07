@@ -2,6 +2,8 @@ import getGallery from '@/actions/getGallery'
 import Actions from '@/components/gallery/Actions'
 import Gallery from '@/components/gallery/Gallery'
 import Header from '@/components/gallery/Header'
+import { Direction } from '@/components/VirtualizedList/types'
+import VirtualizedListRoot from '@/components/VirtualizedList/VirtualizedListRoot'
 import ActionsProvider from '@/providers/ActionsProvider'
 import ToastProvider from '@/providers/ToastProvider'
 
@@ -18,18 +20,20 @@ export default async function Page({
   return (
     <ToastProvider>
       <ActionsProvider>
-        <Header
-          text={galleryName}
-          numberOfImages={numberOfImages}
-          numberOfVideos={numberOfVideos}
-        />
-        <Actions
-          galleryId={galleryId}
-          text={galleryName}
-          numberOfPhotos={numberOfImages}
-          numberOfVideos={numberOfVideos}
-        />
-        <Gallery />
+        <VirtualizedListRoot direction={Direction.VERTICAL}>
+          <Header
+            text={galleryName}
+            numberOfImages={numberOfImages}
+            numberOfVideos={numberOfVideos}
+          />
+          <Actions
+            galleryId={galleryId}
+            text={galleryName}
+            numberOfPhotos={numberOfImages}
+            numberOfVideos={numberOfVideos}
+          />
+          <Gallery />
+        </VirtualizedListRoot>
       </ActionsProvider>
     </ToastProvider>
   )

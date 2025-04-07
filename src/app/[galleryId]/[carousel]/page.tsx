@@ -5,10 +5,11 @@ import Header from '@/components/carousel/Header'
 import Media from '@/components/carousel/Media'
 import MiniCarousel from '@/components/carousel/MiniCarousel'
 import Loading from '@/components/index/Loading'
-import VirtualizedList, {
+import VirtualizedList from '@/components/VirtualizedList/VirtualizedList'
+import {
   VirtualizedListItem,
   VirtualizedListRef
-} from '@/components/VirtualizedList'
+} from '@/components/VirtualizedList/types'
 import { useCarousel } from '@/providers/CarouselProvider'
 import { useMedia } from '@/providers/MediaProvider'
 import cn from '@/utils/cn'
@@ -28,6 +29,7 @@ const Item = memo<VirtualizedListItem>(function Item({ index }) {
 function Page() {
   const { actions } = useCarousel()
   const { media, isLoading } = useMedia()
+
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -57,7 +59,6 @@ function Page() {
 
   const onCarouselChange = useCallback(
     (index: number) => {
-      console.log('carousel change', index)
       onIndexChange(index)
       miniCarouselRef.current?.scrollToItem(index, {
         behaviour: 'smooth',
@@ -69,7 +70,6 @@ function Page() {
   )
   const onMiniCarouselChange = useCallback(
     (index: number) => {
-      console.log('mini: ', index)
       onIndexChange(index)
       carouselRef.current?.scrollToItem(index, {
         behaviour: 'instant',
@@ -91,8 +91,10 @@ function Page() {
     <>
       <Header text={currMedia.keyword} />
       <VirtualizedList
+        overscan={5}
         debugName="BIG"
-        ref={carouselRef}
+        align="start"
+        listRef={carouselRef}
         initialIndex={initialIndex}
         onIndexChange={onCarouselChange}
         length={media.length}
@@ -106,9 +108,9 @@ function Page() {
           actions && 'pointer-events-none opacity-0'
         )}
       >
-        <div className="flex flex-col bg-black/75">
+        <div className="flex flex-col bg-black/75 pt-1">
           <MiniCarousel
-            ref={miniCarouselRef}
+            listRef={miniCarouselRef}
             media={media}
             initialIndex={initialIndex}
             onIndexChange={onMiniCarouselChange}

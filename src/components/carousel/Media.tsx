@@ -1,3 +1,5 @@
+'use client'
+
 import { MediaMime, MediaType } from '@/types/gallery'
 import Image from 'next/image'
 import Player from './Player'
@@ -11,7 +13,12 @@ type MediaProps = {
 
 const Media = ({ media, current = false, className }: MediaProps) => {
   return (
-    <div className={cn('relative min-w-screen h-screen', className)}>
+    <div
+      className={cn(
+        'relative min-w-screen h-screen break-inside-avoid touch-pan-x',
+        className
+      )}
+    >
       {media.type === MediaMime.IMAGE ? (
         <Image src={media.src} fill alt="" className="object-contain" />
       ) : (
