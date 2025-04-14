@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
-import Galleries from '@/components/dashboard/Galleries'
-import GalleriesSkeleton from '@/components/dashboard/GalleriesSkeleton'
-import GalleriesContainer from '@/components/dashboard/GalleriesContainer'
+import Galleries from '@/components/dashboard/galleries'
+import GalleriesSkeleton from '@/components/dashboard/galleries-skeleton'
+import GalleriesContainer from '@/components/dashboard/galleries-container'
 
 function Page() {
   return (

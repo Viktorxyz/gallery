@@ -1,5 +1,5 @@
-import Form from '@/components/new-gallery/Form'
-import TopBar from '@/components/TopBar'
+import Form from '@/components/new-gallery/form'
+import TopBar from '@/components/topbar'
 
 const Page = () => {
   return (

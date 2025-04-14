@@ -32,7 +32,7 @@ const getGallery = async ({ galleryId }: Props): Promise<GalleryMetadata> => {
   return {
     galleryId,
     galleryName: gallery.data[0].gallery_name,
-    numberOfImages: galleryWithCounts.data[0].number_of_images,
+    numberOfPhotos: galleryWithCounts.data[0].number_of_images,
     numberOfVideos: galleryWithCounts.data[0].number_of_videos,
     numberOfUsers: galleryWithCounts.data[0].number_of_users
   }

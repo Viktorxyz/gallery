@@ -1,28 +1,33 @@
-import signIn from '@/actions/signIn'
-import IconButton from '@/components/IconButton'
-import Input from '@/components/Input'
-import TopBar from '@/components/TopBar'
-import React from 'react'
+'use client'
+
+import signIn from '@/actions/sign-in'
+import Button from '@/components/button'
+import TopBar from '@/components/topbar'
+import { useRouter } from 'next/navigation'
+import { useTransition } from 'react'
 
 function Page() {
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+
+  const handleClick = () => {
+    startTransition(async () => {
+      const { url, error } = await signIn()
+
+      if (url && !error) {
+        router.push(url)
+      }
+    })
+  }
+
   return (
     <>
-      <TopBar title="Sign In" className="p-6" />
-      <form
-        action={signIn}
-        className="flex-1 flex flex-col justify-end gap-16 p-6"
-      >
-        <div className="flex flex-col gap-6">
-          <Input name="email" variant="line" placeholder="email" />
-          <Input
-            name="password"
-            variant="line"
-            placeholder="password"
-            type="password"
-          />
-        </div>
-        <IconButton type="submit" className="self-end" icon="IconCheck" />
-      </form>
+      <TopBar title="Sign In" className="sticky top-0 p-6" />
+      <div className="flex justify-center fixed bottom-0 w-full p-6">
+        <Button onClick={handleClick} className="flex-1">
+          {isPending ? '...' : 'Continue with Google'}
+        </Button>
+      </div>
     </>
   )
 }

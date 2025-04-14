@@ -62,7 +62,7 @@ export type GalleryDto = {
 export type GalleryMetadata = {
   galleryId: GalleryId
   galleryName: string
-  numberOfImages: number
+  numberOfPhotos: number
   numberOfVideos: number
   numberOfUsers: number
 }

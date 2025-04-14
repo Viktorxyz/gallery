@@ -3,10 +3,10 @@ import { RefObject, useEffect, useRef } from 'react'
 const useOnStuck = <T extends HTMLElement>(
   onStuck: () => void,
   onUnstuck: () => void,
-  { target }: { target: RefObject<T | null> }
+  { target, root }: { target: RefObject<T | null>; root?: RefObject<T | null> }
 ) => {
   const ref = useRef<T>(null)
-  target ||= ref
+  target ??= ref
 
   useEffect(() => {
     if (!target.current) return
@@ -17,6 +17,7 @@ const useOnStuck = <T extends HTMLElement>(
         else onUnstuck()
       },
       {
+        root: root?.current,
         threshold: [1]
       }
     )
@@ -24,7 +25,7 @@ const useOnStuck = <T extends HTMLElement>(
     observer.observe(target.current)
 
     return () => observer.disconnect()
-  }, [onStuck, onUnstuck, target])
+  }, [onStuck, onUnstuck, root, target])
 
   return target
 }

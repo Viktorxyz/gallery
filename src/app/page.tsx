@@ -1,43 +1,32 @@
-'use client'
+import Actions from '@/components/index/actions'
+import Authentication from '@/components/index/authentication'
+import createClient from '@/utils/supabase/server'
+import Link from 'next/link'
 
-import Actions from '@/components/index/Actions'
-import Loading from '@/components/index/Loading'
-import createClient from '@/utils/supabase/client'
-import { User } from '@supabase/supabase-js'
-import { useEffect, useState } from 'react'
-
-const supabase = createClient()
-
-function Page() {
-  const [user, setUser] = useState<User>()
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const getUser = async () => {
-      const { data } = await supabase.auth.getUser()
-      if (data.user) setUser(data.user)
-      setIsLoading(false)
-    }
-
-    const { data } = supabase.auth.onAuthStateChange((_, session) => {
-      setUser(session?.user)
-    })
-
-    getUser()
-
-    return () => data.subscription.unsubscribe()
-  }, [])
-
-  const signOut = async () => await supabase.auth.signOut()
-
-  if (isLoading) return <Loading />
+async function Page() {
+  const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+  const { data: roleData } = await supabase
+    .from('user_roles')
+    .select('role')
+    .eq('user_id', user?.id)
 
   return (
     <>
-      <div className="flex-1 flex text-7xl tracking-tighter items-center justify-center">
-        Glimpsee
+      <div className="sticky top-0 flex flex-col p-6 items-end">
+        <div className="flex justify-end gap-6">
+          {roleData?.find(({ role }) => role === 'ADMIN') && (
+            <Link href="/dashboard">Dashboard</Link>
+          )}
+          <Authentication initialUser={user} />
+        </div>
       </div>
-      <Actions signOut={signOut} user={user} className="fixed p-6 bottom-0" />
+      <div className="fixed bottom-0 w-full h-[60vh] flex flex-col justify-between">
+        <h1 className="text-6xl tracking-tighter text-center">Glimpsee</h1>
+        <Actions />
+      </div>
     </>
   )
 }

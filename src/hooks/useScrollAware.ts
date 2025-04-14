@@ -1,6 +1,6 @@
 'use client'
 
-import { Direction } from '@/components/VirtualizedList/types'
+import { Direction } from '@/components/virtualized-list/types'
 import { RefObject, useCallback, useEffect, useRef, useState } from 'react'
 
 type useScrollAwareProps<T> = {

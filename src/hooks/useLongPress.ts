@@ -1,8 +1,8 @@
-import { useEffect, useRef } from 'react'
+import { RefObject, useEffect, useRef } from 'react'
 import useWindowScroll from './useWindowScroll' // Import your scroll detection hook
 
 type Options<T> = {
-  target?: React.RefObject<T>
+  target?: RefObject<T | null>
   delay?: number
 }
 
@@ -11,8 +11,9 @@ export default function useLongPress<T extends HTMLElement>(
   options: Options<T> = {}
 ) {
   const { delay = 1500, target } = options
-  const defaultRef = useRef<T | null>(null)
+  const defaultRef = useRef<T>(null)
   const ref = target ?? defaultRef
+
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const lastScrollY = useRef<number>(0)
 
@@ -57,5 +58,5 @@ export default function useLongPress<T extends HTMLElement>(
     }
   }, [onLongPress, delay, target, currentScrollY, ref])
 
-  return target
+  return ref
 }

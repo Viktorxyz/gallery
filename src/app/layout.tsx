@@ -1,10 +1,9 @@
-/* eslint-disable @next/next/no-sync-scripts */
-import Main from '@/components/global/Main'
+import Main from '@/components/global/main'
 import '@/styles/globals.css'
 import { ReactNode } from 'react'
 import { Inter } from 'next/font/google'
 import cn from '@/utils/cn'
-import Providers from '@/providers/Providers'
+import Providers from '@/providers/providers'
 
 const inter = Inter({ subsets: ['latin'] })
 
