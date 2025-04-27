@@ -1,5 +1,6 @@
 import uploadMedia, { UploadMediaProps } from '@/actions/uploadMedia'
-import { MediaMime, MediaType } from '@/types/gallery'
+import { useAuth } from '@/providers/auth-provider'
+import { Media, MediaMime } from '@/types/gallery'
 import getImageDimensions from '@/utils/getImageDimensions'
 import getVideoDimensionsClient from '@/utils/getVideoDimensionsClient'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -11,18 +12,20 @@ type Dimensions = {
 }
 
 function useUploadMediaMutation() {
+  const { user } = useAuth()
   const queryClient = useQueryClient()
   const uploadMediaMutation = useMutation<
     { mediaId: string },
     Error,
     UploadMediaProps & { tempMediaId: string },
-    MediaType[]
+    Media[]
   >({
-    mutationFn: ({ file, galleryId, keywordId }) =>
-      uploadMedia({ file, galleryId, keywordId }),
-    onMutate: async ({ file, galleryId, keywordId, tempMediaId }) => {
+    mutationFn: ({ file, galleryId }) => uploadMedia({ file, galleryId }),
+    onMutate: async ({ file, galleryId, tempMediaId }) => {
+      if (!user) return
+
       await queryClient.cancelQueries({ queryKey: ['media'] })
-      const previousMedia = queryClient.getQueryData<MediaType[]>(['media'])
+      const previousMedia = queryClient.getQueryData<Media[]>(['media'])
       const type = file.type.startsWith('image')
         ? MediaMime.IMAGE
         : MediaMime.VIDEO
@@ -30,31 +33,28 @@ function useUploadMediaMutation() {
         type === MediaMime.IMAGE
           ? await getImageDimensions(file)
           : await getVideoDimensionsClient(file)
-      const newMedia: MediaType = {
+      const newMedia: Media = {
+        userId: user.id,
         mediaId: tempMediaId,
-        keywordId,
         galleryId,
         src: URL.createObjectURL(file),
         uploading: true,
-        selected: false,
         likesCount: 0,
         liked: false,
-        keyword,
         aspectRatio: dimensions.width / dimensions.height,
         width: dimensions.width,
         height: dimensions.height,
-        duration: dimensions.duration,
         createdAt: Date.now(),
         type
       }
-      queryClient.setQueryData(['media'], (prev: MediaType[]) => [
+      queryClient.setQueryData(['media'], (prev: Media[]) => [
         newMedia,
         ...prev
       ])
       return previousMedia
     },
     onSuccess: ({ mediaId }, newMedia) => {
-      queryClient.setQueryData(['media'], (prev: MediaType[]) =>
+      queryClient.setQueryData(['media'], (prev: Media[]) =>
         prev.map((m) =>
           m.mediaId === newMedia.tempMediaId
             ? { ...m, mediaId, uploading: false }

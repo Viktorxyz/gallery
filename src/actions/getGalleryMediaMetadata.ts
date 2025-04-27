@@ -15,7 +15,7 @@ const getGalleryMediaMetadata = async ({
   const { data, error } = await supabase
     .from('media_metadata')
     .select(
-      'media_id,keyword_id,likes_count,width,height,aspect_ratio,type,duration'
+      'media_id,user_id,gallery_id,likes_count,width,height,aspect_ratio,type,created_at'
     )
     .eq('gallery_id', galleryId)
 
@@ -23,15 +23,15 @@ const getGalleryMediaMetadata = async ({
 
   const mediaMetadata: MediaMetadata[] = data.map((m) => ({
     mediaId: m.media_id,
-    galleryId,
-    keywordId: m.keyword_id,
+    userId: m.user_id,
+    username: 'username',
+    galleryId: m.gallery_id,
+    likesCount: m.likes_count,
+    type: m.type,
     width: m.width,
     height: m.height,
     aspectRatio: m.aspect_ratio,
-    likesCount: m.likes_count,
-    type: m.type,
-    duration: m.duration,
-    createdAt: Date.now()
+    createdAt: m.created_at
   }))
 
   return mediaMetadata

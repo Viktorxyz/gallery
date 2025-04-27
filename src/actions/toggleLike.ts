@@ -4,17 +4,21 @@ import createClient from '@/utils/supabase/server'
 
 export type ToggleLikeProps = {
   mediaId: string
-  keywordId: string
 }
 
-const toggleLike = async ({ mediaId, keywordId }: ToggleLikeProps) => {
+const toggleLike = async ({ mediaId }: ToggleLikeProps) => {
   const supabase = await createClient()
+  const {
+    data: { user }
+  } = await supabase.auth.getUser()
+
+  if (!user) throw new Error('Unauthenticated')
 
   const { data: like, error: mediaLikesError } = await supabase
     .from('media_likes')
     .select('media_id')
     .eq('media_id', mediaId)
-    .eq('keyword_id', keywordId)
+    .eq('user_id', user.id)
 
   if (mediaLikesError) throw mediaLikesError
 
@@ -25,11 +29,11 @@ const toggleLike = async ({ mediaId, keywordId }: ToggleLikeProps) => {
       .from('media_likes')
       .delete()
       .eq('media_id', mediaId)
-      .eq('keyword_id', keywordId)
+      .eq('user_id', user.id)
   else
     await supabase.from('media_likes').insert({
       media_id: mediaId,
-      keyword_id: keywordId
+      user_id: user.id
     })
 
   const { data, error: mediaMetadataError } = await supabase

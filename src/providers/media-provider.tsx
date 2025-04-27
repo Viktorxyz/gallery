@@ -1,18 +1,18 @@
 'use client'
 
-import { MediaType } from '@/types/gallery'
+import { Media } from '@/types/gallery'
 import { useQuery } from '@tanstack/react-query'
 import { createContext, PropsWithChildren, useContext } from 'react'
 
 type MediaContextType = {
   isLoading: boolean
-  media?: MediaType[]
+  media?: Media[]
 }
 
 const MediaContext = createContext<MediaContextType | null>(null)
 
 type MediaProviderProps = {
-  mediaPromise: Promise<MediaType[]>
+  mediaPromise: Promise<Media[]>
 }
 
 function MediaProvider({
@@ -25,7 +25,7 @@ function MediaProvider({
   })
 
   const value = {
-    media: media,
+    media,
     isLoading
   }
 

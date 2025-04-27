@@ -14,9 +14,8 @@ async function getGalleries() {
   const galleries_with_counts = await supabase.from('galleries_with_counts')
     .select(`
     gallery_id,
-    number_of_images,
-    number_of_videos,
-    number_of_users`)
+    number_of_photos,
+    number_of_videos`)
 
   const galleriesWithCountsObj = convertArrayToObject(
     galleries_with_counts.data ?? [],

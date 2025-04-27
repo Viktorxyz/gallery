@@ -4,7 +4,6 @@ import { IconCheck, IconHeartFill } from '@/data/icons'
 import useLongPress from '@/hooks/useLongPress'
 import Spinner from '../spinner'
 import { useCallback, useEffect, useState } from 'react'
-import useUserStore from '@/stores/userStore'
 import cn from '@/utils/cn'
 import Image from 'next/image'
 import { MediaMime, RowMediaType } from '@/types/gallery'
@@ -19,7 +18,6 @@ type MediaProps = {
 
 const Media = ({ media, pinching }: MediaProps) => {
   const { index, aspectRatio, uploading, liked, type, src } = media
-  const { zoomLevel } = useUserStore()
   const router = useRouter()
   const pathname = usePathname()
   const isSelecting = useGallery((state) => state.isSelecting)
@@ -30,7 +28,7 @@ const Media = ({ media, pinching }: MediaProps) => {
 
   const [selected, setSelected] = useState(selectedMedia.has(index))
 
-  const gap = (-1 / 2) * zoomLevel + 9 / 2
+  const gap = (-1 / 2) * 1 + 9 / 2 // TODO replace 1
 
   const select = useCallback(() => {
     setSelected(true)
@@ -91,7 +89,7 @@ const Media = ({ media, pinching }: MediaProps) => {
       ) : uploading ? (
         <Spinner className="self-center justify-self-center" />
       ) : (
-        zoomLevel < 4 &&
+        3 < 4 && // TODO
         liked && (
           <IconHeartFill className="z-10 fill-rose-500 justify-self-end" />
         )

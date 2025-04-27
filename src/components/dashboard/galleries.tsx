@@ -13,16 +13,24 @@ async function Galleries({ className }: GalleriesProps) {
   const mapped: GalleryMetadata[] = galleries.map((gallery) => ({
     galleryId: gallery.gallery_id,
     galleryName: gallery.gallery_name,
-    numberOfPhotos: gallery.number_of_images,
-    numberOfVideos: gallery.number_of_videos,
-    numberOfUsers: gallery.number_of_users
+    numberOfPhotos: gallery.number_of_photos,
+    numberOfVideos: gallery.number_of_videos
   }))
 
   return (
     <div className={cn('flex flex-col flex-1 gap-8 pb-6', className)}>
-      {mapped.map((gallery, i) => (
-        <Row gallery={gallery} index={i + 1} key={i} />
-      ))}
+      {mapped.map(
+        ({ galleryId, galleryName, numberOfPhotos, numberOfVideos }, i) => (
+          <Row
+            galleryId={galleryId}
+            galleryName={galleryName}
+            numberOfPhotos={numberOfPhotos}
+            numberOfVideos={numberOfVideos}
+            index={i + 1}
+            key={i}
+          />
+        )
+      )}
     </div>
   )
 }

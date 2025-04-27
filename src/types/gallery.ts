@@ -1,6 +1,6 @@
 export type GalleryId = string
 export type MediaId = string
-export type KeywordId = string
+export type UserId = string
 
 export enum MediaMime {
   IMAGE = 'IMAGE',
@@ -8,68 +8,57 @@ export enum MediaMime {
 }
 
 export type MediaMetadataDto = {
-  gallery_id: GalleryId
   media_id: MediaId
-  keyword_id: KeywordId
+  gallery_id: GalleryId
+  user_id: UserId
   likes_count: number
+  type: MediaMime
   width: number
   height: number
   aspect_ratio: number
-  type: MediaMime
-  duration: number
   created_at: Date
 }
 
 export type MediaMetadata = {
-  galleryId: GalleryId
   mediaId: MediaId
-  keywordId: KeywordId
+  galleryId: GalleryId
+  userId: UserId
+  username: string
   likesCount: number
+  type: MediaMime
   width: number
   height: number
   aspectRatio: number
-  type: MediaMime
-  duration?: number
-  createdAt: unknown
+  createdAt: string
 }
 
 export type MediaClient = {
   src: string
-  keyword: string
-  uploading: boolean
-  selected: boolean
   liked: boolean
+  uploading: boolean
 }
 
-export type MediaType = MediaMetadata & MediaClient
+export type Media = MediaMetadata & MediaClient
 
-export type MediaMap = Map<GalleryId, MediaType>
-
-export type GalleryType = {
-  galleryId: GalleryId
-  galleryName: string
-  media: MediaMap
-}
+export type MediaMap = Map<GalleryId, Media>
 
 export type GalleryDto = {
   gallery_id: GalleryId
   gallery_name: string
-  number_of_images: number
+  number_of_photos: number
   number_of_videos: number
-  number_of_users: number
 }
 
-export type GalleryMetadata = {
+export type Gallery = {
   galleryId: GalleryId
   galleryName: string
   numberOfPhotos: number
   numberOfVideos: number
-  numberOfUsers: number
 }
 
 export type RowMediaType = {
   index: number
-} & MediaType
+} & Media
 
 export type RowType = {
   aspectRatio: number

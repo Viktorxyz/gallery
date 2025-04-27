@@ -2,7 +2,6 @@
 
 import { usePinch } from '@use-gesture/react'
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import useUserStore from '@/stores/userStore'
 import createClient from '@/utils/supabase/client'
 import generateImageRows from '@/utils/generateMediaRows'
 import { useMedia } from '@/providers/media-provider'
@@ -19,14 +18,14 @@ const supabase = createClient()
 
 const Gallery = () => {
   const { media, isLoading } = useMedia()
+
   const { height } = useWindowSize()
+  const [zoomLevel, setZoomLevel] = useState(5)
 
   const scrollOffset = useMemo(() => -(76 + height * 0.25), [height])
 
   const ref = useRef(null)
   const [pinching, setPinching] = useState(false)
-
-  const { zoomLevel, setZoomLevel, keywordId } = useUserStore()
 
   const rowMedia = useMemo(
     () => (media ? media.map((m, index) => ({ index, ...m })) : []),
@@ -42,8 +41,8 @@ const Gallery = () => {
       setPinching(!last)
       const zoomLevel = MAX_ZOOM_LEVEL + MIN_ZOOM_LEVEL - x
       const rounded = Math.round(zoomLevel)
-      if (last) setZoomLevel({ zoomLevel: rounded })
-      else setZoomLevel({ zoomLevel: zoomLevel })
+      if (last) setZoomLevel(rounded)
+      else setZoomLevel(zoomLevel)
     },
     {
       target: ref,
@@ -68,12 +67,13 @@ const Gallery = () => {
           table: 'media_metadata'
         },
         (payload) => {
-          if (payload.new.keyword_id !== keywordId)
-            console.log('show refresh toast')
+          console.log(payload.new)
+          // if (payload.new.user_id !== keywordId)
+          //   console.log('show refresh toast')
         }
       )
       .subscribe()
-  }, [keywordId])
+  }, [])
 
   const Item = memo<VirtualizedListItem>(function Item({ index }) {
     const { media, aspectRatio } = imageRows[index]
@@ -89,6 +89,8 @@ const Gallery = () => {
   )
 
   if (isLoading) return <Loading />
+
+  if (media && media.length == 0) return <div>There is no media</div>
 
   return (
     <VirtualizedList

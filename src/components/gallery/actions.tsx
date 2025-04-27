@@ -1,17 +1,23 @@
+'use client'
+
+import useUploadMediaMutation from '@/api/useUploadMediaMutation'
 import { IconPlus, IconQRCode } from '@/data/icons'
+import { useAuth } from '@/providers/auth-provider'
+import { useParams } from 'next/navigation'
 import { ChangeEvent } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 function Actions() {
-  // const supabase = await createClient()
-  // const { data, error } = await supabase.auth.getUser()
+  const { user } = useAuth()
+  const { galleryId } = useParams<{ galleryId: string }>()
+  const uploadMediaMutation = useUploadMediaMutation()
 
   const onFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
       for (const file of files) {
         const tempMediaId = uuidv4()
-        uploadMediaMutation.mutate({ file, galleryId, keywordId, tempMediaId })
+        uploadMediaMutation.mutate({ file, galleryId, tempMediaId })
       }
     }
   }
@@ -33,7 +39,11 @@ function Actions() {
             multiple
           />
         ) : (
-          <input type="button" className="hidden" onClick={openKeyword} />
+          <input
+            type="button"
+            className="hidden"
+            onClick={() => console.log('open sign-in')}
+          />
         )}
       </label>
     </div>

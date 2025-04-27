@@ -89,7 +89,7 @@ function Page() {
 
   return (
     <>
-      <Header text={currMedia.keyword} />
+      <Header text={currMedia.username} />
       <VirtualizedList
         overscan={5}
         debugName="BIG"

@@ -1,13 +1,13 @@
 'use server'
 
-import { GalleryMetadata } from '@/types/gallery'
+import { Gallery } from '@/types/gallery'
 import createClient from '@/utils/supabase/server'
 
 type Props = {
   galleryId: string
 }
 
-const getGallery = async ({ galleryId }: Props): Promise<GalleryMetadata> => {
+const getGallery = async ({ galleryId }: Props): Promise<Gallery> => {
   const supabase = await createClient()
 
   const gallery = await supabase
@@ -21,9 +21,8 @@ const getGallery = async ({ galleryId }: Props): Promise<GalleryMetadata> => {
     .from('galleries_with_counts')
     .select(
       `
-    number_of_images,
-    number_of_videos,
-    number_of_users`
+    number_of_photos,
+    number_of_videos`
     )
     .eq('gallery_id', galleryId)
 
@@ -32,9 +31,8 @@ const getGallery = async ({ galleryId }: Props): Promise<GalleryMetadata> => {
   return {
     galleryId,
     galleryName: gallery.data[0].gallery_name,
-    numberOfPhotos: galleryWithCounts.data[0].number_of_images,
-    numberOfVideos: galleryWithCounts.data[0].number_of_videos,
-    numberOfUsers: galleryWithCounts.data[0].number_of_users
+    numberOfPhotos: galleryWithCounts.data[0].number_of_photos,
+    numberOfVideos: galleryWithCounts.data[0].number_of_videos
   }
 }
 
