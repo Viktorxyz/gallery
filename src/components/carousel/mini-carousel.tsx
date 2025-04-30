@@ -1,17 +1,17 @@
-import { MediaType } from '@/types/gallery'
+import { Media } from '@/types/gallery'
 import VirtualizedList from '../virtualized-list/virtualized-list'
 import { useMedia } from '@/providers/media-provider'
 import Thumbnail from './thumbnail'
 import { memo, RefObject, useCallback } from 'react'
 import {
   VirtualizedListItem,
-  VirtualizedListRef
+  VirtualizedListRef,
 } from '../virtualized-list/types'
 
 const carouselHeight = 48
 
 type MiniCarouselProps = {
-  media: MediaType[]
+  media: Media[]
   initialIndex?: number
   onIndexChange: (index: number) => void
   listRef: RefObject<VirtualizedListRef>
@@ -19,7 +19,7 @@ type MiniCarouselProps = {
 
 const Item = memo<VirtualizedListItem>(function Item({
   index,
-  virtualizedListRef
+  virtualizedListRef,
 }) {
   const { media } = useMedia()
 
@@ -32,14 +32,14 @@ const Item = memo<VirtualizedListItem>(function Item({
     virtualizedListRef.current.scrollToItem(index, {
       align: 'center',
       behaviour: 'smooth',
-      cancelOnChange: false
+      cancelOnChange: false,
     })
   }
 
   return (
     <Thumbnail
       media={m}
-      className="snap-center snap-normal"
+      className='snap-center snap-normal'
       onClick={onClick}
     />
   )
@@ -49,7 +49,7 @@ function MiniCarousel({
   media,
   initialIndex,
   onIndexChange,
-  listRef
+  listRef,
 }: MiniCarouselProps) {
   const getItemSize = useCallback(
     (index: number) => {
@@ -61,8 +61,8 @@ function MiniCarousel({
 
   return (
     <VirtualizedList
-      debugName="MINI"
-      align="center"
+      debugName='MINI'
+      align='center'
       listRef={listRef}
       Item={Item}
       length={media.length}
@@ -72,11 +72,11 @@ function MiniCarousel({
       overscan={10}
       gap={4}
       scrollOffset={getItemSize(0) / 2}
-      className="scrollbar-hidden snap-x snap-mandatory"
+      className='scrollbar-hidden snap-x snap-mandatory'
       style={{
         height: carouselHeight,
         paddingLeft: `calc(50% - ${getItemSize(0) / 2}px)`,
-        paddingRight: `calc(50% - ${getItemSize(media.length - 1) / 2}px)`
+        paddingRight: `calc(50% - ${getItemSize(media.length - 1) / 2}px)`,
       }}
     />
   )

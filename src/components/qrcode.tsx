@@ -1,14 +1,11 @@
+'use client'
+
 import React, { useEffect, useState } from 'react'
-import Backdrop from './backdrop'
 import qrcode from 'qrcode'
 import Image from 'next/image'
 
-type QRCodeProps = {
-  onClickAway: () => void
-}
-
-const QRCode = ({ onClickAway }: QRCodeProps) => {
-  const [src, setSrc] = useState<string>('')
+const QRCode = () => {
+  const [src, setSrc] = useState<string>()
 
   useEffect(() => {
     const generateQRCode = async () => {
@@ -16,29 +13,29 @@ const QRCode = ({ onClickAway }: QRCodeProps) => {
       const src = await qrcode.toDataURL(location, {
         color: {
           light: '#ffffff00',
-          dark: '#ffffff'
+          dark: '#ffffff',
         },
         width: 1080,
         rendererOpts: {
-          quality: 1
+          quality: 1,
         },
-        type: 'image/webp'
+        type: 'image/webp',
       })
       setSrc(src)
     }
     generateQRCode()
   }, [setSrc])
 
+  if (!src) return null
+
   return (
-    <>
-      <div
-        className="fixed h-screen w-screen z-50 flex items-center justify-center"
-        onClick={onClickAway}
-      >
-        <Image className="w-3xs aspect-square" src={src} alt="" />
-      </div>
-      <Backdrop />
-    </>
+    <Image
+      className='aspect-square'
+      width={256}
+      height={256}
+      src={src}
+      alt=''
+    />
   )
 }
 

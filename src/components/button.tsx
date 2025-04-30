@@ -4,7 +4,7 @@ import cn from '@/utils/cn'
 import React, {
   ButtonHTMLAttributes,
   DetailedHTMLProps,
-  ReactNode
+  ReactNode,
 } from 'react'
 
 type ButtonVariant = 'sm' | 'md' | 'lg'
@@ -41,12 +41,12 @@ const Button = ({
       )}
       {...props}
     >
-      <div className="flex justify-start w-full">
-        {iconStart && <IconStart className="icon-on-action" />}
+      <div className='flex justify-start w-full'>
+        {iconStart && <IconStart className='icon-on-action' />}
       </div>
       {children}
-      <div className="flex justify-end w-full">
-        {iconEnd && <IconEnd className="icon-on-action" />}
+      <div className='flex justify-end w-full'>
+        {iconEnd && <IconEnd className='icon-on-action' />}
       </div>
     </button>
   )

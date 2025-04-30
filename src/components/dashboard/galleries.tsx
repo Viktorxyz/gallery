@@ -1,6 +1,6 @@
 import getGalleries from '@/actions/getGalleries'
 import Row from './row'
-import { GalleryMetadata } from '@/types/gallery'
+import { Gallery } from '@/types/gallery'
 import cn from '@/utils/cn'
 
 type GalleriesProps = {
@@ -10,11 +10,11 @@ type GalleriesProps = {
 async function Galleries({ className }: GalleriesProps) {
   const { galleries } = await getGalleries()
 
-  const mapped: GalleryMetadata[] = galleries.map((gallery) => ({
+  const mapped: Gallery[] = galleries.map((gallery) => ({
     galleryId: gallery.gallery_id,
     galleryName: gallery.gallery_name,
     numberOfPhotos: gallery.number_of_photos,
-    numberOfVideos: gallery.number_of_videos
+    numberOfVideos: gallery.number_of_videos,
   }))
 
   return (

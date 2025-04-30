@@ -1,6 +1,6 @@
 'use client'
 
-import { MediaMime, MediaType } from '@/types/gallery'
+import { Media as MediaType, MediaMime } from '@/types/gallery'
 import Image from 'next/image'
 import Player from './player'
 import cn from '@/utils/cn'
@@ -11,7 +11,7 @@ type MediaProps = {
   className?: string
 }
 
-const Media = ({ media, current = false, className }: MediaProps) => {
+function Media({ media, current = false, className }: MediaProps) {
   return (
     <div
       className={cn(
@@ -20,7 +20,7 @@ const Media = ({ media, current = false, className }: MediaProps) => {
       )}
     >
       {media.type === MediaMime.IMAGE ? (
-        <Image src={media.src} fill alt="" className="object-contain" />
+        <Image src={media.src} fill alt='' className='object-contain' />
       ) : (
         <Player src={media.src} defaultPlay={current} />
       )}

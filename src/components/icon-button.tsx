@@ -1,51 +1,47 @@
 import * as icons from '@/data/icons'
 import { Icon } from '@/types/icons'
 import cn from '@/utils/cn'
-import React, { ButtonHTMLAttributes, DetailedHTMLProps } from 'react'
-
-type IconButtonVariant = 'md' | 'sm'
-
-type IconButtonColor = 'black' | 'white'
+import { motion, HTMLMotionProps, useAnimate } from 'framer-motion'
 
 type IconButtonProps = {
-  variant?: IconButtonVariant
-  color?: IconButtonColor
   icon: Icon
   className?: string
-} & DetailedHTMLProps<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  HTMLButtonElement
->
+  iconCn?: string
+} & HTMLMotionProps<'button'>
 
 const IconButton = ({
-  variant = 'md',
-  color = 'white',
   icon,
+  iconCn,
   className,
+  onClick,
   ...props
 }: IconButtonProps) => {
+  const [scope, animate] = useAnimate()
   const Icon = icons[icon]
+
+  const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    await animate(scope.current, {
+      scale: 1,
+    })
+    await animate(scope.current, {
+      scale: 0,
+    })
+    if (onClick) onClick(e)
+  }
+
   return (
-    <button
-      className={cn(
-        'flex justify-center items-center rounded-full',
-        variant === 'md' && 'size-12',
-        variant === 'sm' && 'size-8',
-        color === 'black' && 'bg-black',
-        color === 'white' && 'bg-white',
-        className
-      )}
+    <motion.button
+      className={cn('flex justify-center items-center rounded-full', className)}
+      onClick={handleClick}
       {...props}
     >
-      <Icon
-        className={cn(
-          variant === 'md' && 'size-6',
-          variant === 'sm' && 'scale-75',
-          color === 'black' && 'icon-action',
-          color === 'white' && 'icon-on-action'
-        )}
+      <Icon className={cn('fill-white z-10', iconCn)} />
+      <motion.div
+        initial={{ scale: 0 }}
+        ref={scope}
+        className='absolute size-12 rounded-full bg-zinc-900'
       />
-    </button>
+    </motion.button>
   )
 }
 

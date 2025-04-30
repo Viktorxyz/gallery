@@ -1,9 +1,9 @@
-import { MediaMime, MediaType } from '@/types/gallery'
+import { MediaMime, Media } from '@/types/gallery'
 import cn from '@/utils/cn'
 import Image from 'next/image'
 
 type ThumbnailProps = {
-  media: MediaType
+  media: Media
   onClick: () => void
   className?: string
 }
@@ -16,12 +16,12 @@ const Thumbnail = ({ media, onClick, className }: ThumbnailProps) => {
         className
       )}
       style={{
-        aspectRatio: media.aspectRatio
+        aspectRatio: media.aspectRatio,
       }}
       onClick={onClick}
     >
       {media.type === MediaMime.IMAGE ? (
-        <Image src={media.src} fill alt="" sizes="(max-width: 768px) 168px" />
+        <Image src={media.src} fill alt='' sizes='(max-width: 768px) 168px' />
       ) : (
         <video src={`${media.src}#t=0.1`} />
       )}

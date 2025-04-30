@@ -34,6 +34,7 @@ function useUploadMediaMutation() {
           ? await getImageDimensions(file)
           : await getVideoDimensionsClient(file)
       const newMedia: Media = {
+        username: 'username',
         userId: user.id,
         mediaId: tempMediaId,
         galleryId,
@@ -44,12 +45,12 @@ function useUploadMediaMutation() {
         aspectRatio: dimensions.width / dimensions.height,
         width: dimensions.width,
         height: dimensions.height,
-        createdAt: Date.now(),
-        type
+        createdAt: Date.now().toString(),
+        type,
       }
       queryClient.setQueryData(['media'], (prev: Media[]) => [
         newMedia,
-        ...prev
+        ...prev,
       ])
       return previousMedia
     },
@@ -64,7 +65,7 @@ function useUploadMediaMutation() {
     },
     onError: (error, payload, context) => {
       queryClient.setQueryData(['media'], context)
-    }
+    },
   })
 
   return uploadMediaMutation

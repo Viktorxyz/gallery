@@ -23,9 +23,8 @@ const ToastRefreshImages = ({ className }: ToastRefreshImagesProps) => {
   return (
     <IconButton
       onClick={refetchImages}
-      variant="sm"
-      color="black"
-      icon="IconRotateRight"
+      color='black'
+      icon='IconRotateRight'
       className={cn(
         'fixed outline-1 outline-white bottom-28 right-6',
         className

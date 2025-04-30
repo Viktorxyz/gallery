@@ -28,7 +28,16 @@ function QRCodeScanner({
       qrCodeErrorCallback
     )
 
-    return () => scanner.clear()
+    return () => {
+      const stopScanner = async () => {
+        try {
+          await scanner.stop()
+        } catch (error) {
+          console.error(error)
+        }
+      }
+      stopScanner()
+    }
   }, [config, qrCodeErrorCallback, qrCodeSuccessCallback])
 
   return (
