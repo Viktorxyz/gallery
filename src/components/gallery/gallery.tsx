@@ -50,8 +50,8 @@ const Gallery = () => {
       from: ({ offset: [x] }) => [Math.round(x), 0],
       scaleBounds: {
         max: MAX_ZOOM_LEVEL,
-        min: MIN_ZOOM_LEVEL
-      }
+        min: MIN_ZOOM_LEVEL,
+      },
     }
   )
 
@@ -64,7 +64,7 @@ const Gallery = () => {
         {
           event: 'INSERT',
           schema: 'public',
-          table: 'media_metadata'
+          table: 'media_metadata',
         },
         (payload) => {
           console.log(payload.new)
@@ -93,15 +93,16 @@ const Gallery = () => {
   if (media && media.length == 0) return <div>There is no media</div>
 
   return (
-    <VirtualizedList
-      ref={ref}
-      className="bg-black text-white break-inside-avoid touch-pan-y"
-      Item={Item}
-      overscan={4}
-      length={imageRows.length}
-      getItemSize={getItemSize}
-      scrollOffset={scrollOffset}
-    />
+    <div className='flex-1 touch-pan-y break-inside-auto' ref={ref}>
+      {/* <div className='text-white'>{pinching ? 'yes' : 'no'}</div> */}
+      <VirtualizedList
+        Item={Item}
+        overscan={4}
+        length={imageRows.length}
+        getItemSize={getItemSize}
+        scrollOffset={scrollOffset}
+      />
+    </div>
   )
 }
 

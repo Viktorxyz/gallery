@@ -12,19 +12,19 @@ import ActionsHeader from '@/components/gallery/actions-header'
 import SelectActions from '@/components/gallery/select-actions'
 
 export default async function Page({
-  params
+  params,
 }: {
   params: Promise<{ galleryId: string }>
 }) {
   const { galleryId } = await params
   const { galleryName, numberOfPhotos, numberOfVideos } = await getGallery({
-    galleryId
+    galleryId,
   })
 
   return (
     <VirtualizedListRoot
       direction={Direction.VERTICAL}
-      className="snap-y snap-proximity scrollbar-hidden"
+      className='flex flex-col snap-y snap-proximity scrollbar-hidden'
     >
       <TitleContainer>
         <Title

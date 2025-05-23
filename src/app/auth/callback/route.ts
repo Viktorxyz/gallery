@@ -25,7 +25,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}${next}`)
       }
     }
-    console.log(error)
+    console.log(error, code)
   }
 
   // return the user to an error page with instructions

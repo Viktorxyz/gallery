@@ -31,10 +31,11 @@ const Media = ({ media, pinching }: MediaProps) => {
   const gap = (-1 / 2) * 1 + 9 / 2 // TODO replace 1
 
   const select = useCallback(() => {
+    if (pinching) return
     setSelected(true)
     setIsSelecting(true)
     selectMedia(index)
-  }, [index, selectMedia, setIsSelecting])
+  }, [index, pinching, selectMedia, setIsSelecting])
 
   const onClick = useCallback(() => {
     if (isSelecting) {
@@ -48,7 +49,7 @@ const Media = ({ media, pinching }: MediaProps) => {
     } else {
       const searchParams = new URLSearchParams({ i: media.mediaId })
       router.push(pathname + '/carousel?' + searchParams.toString(), {
-        scroll: false
+        scroll: false,
       })
     }
   }, [
@@ -59,7 +60,7 @@ const Media = ({ media, pinching }: MediaProps) => {
     pathname,
     router,
     selectMedia,
-    selected
+    selected,
   ])
 
   useEffect(() => {
@@ -77,38 +78,38 @@ const Media = ({ media, pinching }: MediaProps) => {
         // 'border-[1px] border-green-400'
       )}
       style={{
-        aspectRatio
+        aspectRatio,
       }}
       onClick={onClick}
     >
       {/* <div className="absolute top-0 left-0 w-full h-full bg-blue-950"></div> */}
       {selected ? (
-        <div className="z-50 flex justify-end items-end absolute inset-0 bg-black/75">
-          <IconCheck className="m-6 size-6 icon-action" />
+        <div className='z-50 flex justify-end items-end absolute inset-0 bg-black/75'>
+          <IconCheck className='m-6 size-6 icon-action' />
         </div>
       ) : uploading ? (
-        <Spinner className="self-center justify-self-center" />
+        <Spinner className='self-center justify-self-center' />
       ) : (
         3 < 4 && // TODO
         liked && (
-          <IconHeartFill className="z-10 fill-rose-500 justify-self-end" />
+          <IconHeartFill className='z-10 fill-rose-500 justify-self-end' />
         )
       )}
       {type === MediaMime.IMAGE ? (
         <Image
-          className="object-cover z-0 pointer-events-none"
+          className='object-cover z-0 pointer-events-none'
           style={{
-            padding: `${gap}px`
+            padding: `${gap}px`,
           }}
           src={src}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          alt=""
+          sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+          alt=''
         />
       ) : (
         <>
           <video
-            className="object-cover pointer-events-none"
+            className='object-cover pointer-events-none'
             style={{ padding: `${gap}px` }}
             src={src}
             muted

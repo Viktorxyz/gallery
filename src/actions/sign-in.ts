@@ -5,7 +5,7 @@ import createClient from '@/utils/supabase/server'
 async function signIn() {
   const supabase = await createClient()
   try {
-    console.log(process.env.SITE_URL)
+    console.log(`${process.env.SITE_URL}/auth/callback`)
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
